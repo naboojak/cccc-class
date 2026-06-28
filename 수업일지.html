@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cccc class</title>
+<style>
+  :root { --bg:#FFFFFF; --surface:#FAFAFA; --surface2:#FFFFFF; --border:#EFEFEF; --text:#1A1A1A; --text-sub:#6B6860; --text-muted:#A09E99; --accent:#534AB7; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .app{max-width:480px;margin:0 auto;padding:0 0 4rem;}
+  .app-header{padding:1rem 1.25rem;border-bottom:0.5px solid var(--border);background:var(--surface2);position:sticky;top:0;z-index:10;}
+  .app-title{font-size:16px;font-weight:600;}
+  .tab-row{display:flex;background:var(--surface2);border-bottom:0.5px solid var(--border);}
+  .tab{flex:1;padding:0.65rem;font-size:13px;text-align:center;color:var(--text-muted);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;}
+  .tab.active{color:var(--text);border-bottom:2px solid var(--text);font-weight:500;}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;padding:0.6rem 1.25rem;background:var(--surface2);border-bottom:0.5px solid var(--border);align-items:center;}
+  .legend-item{font-size:11px;color:var(--text-sub);display:flex;align-items:center;gap:3px;}
+  .pill-tip{color:#f20fb6;font-weight:600;font-size:11px;}
+  .mark-symbol{color:#90f20f;}
+  .entry-list{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.6rem;}
+  .entry-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:0.9rem 1rem;cursor:pointer;transition:border-color 0.15s,transform 0.1s;-webkit-tap-highlight-color:transparent;}
+  .entry-card:active{transform:scale(0.98);}
+  .entry-card:hover{border-color:#D0CEC9;}
+  .entry-row1{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  .entry-num{font-size:13px;font-weight:600;}
+  .entry-date{font-size:12px;color:var(--text-muted);flex-shrink:0;}
+  .entry-dots{display:flex;align-items:center;gap:4px;margin-bottom:5px;flex-wrap:wrap;}
+  .dlabel{font-size:10px;color:var(--text-muted);margin-right:1px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  .d-done{background:#C0BEB8;}
+  .d-today{background:#1A1A1A;}
+  .d-empty{background:transparent;border:1px solid #D0CEC9;}
+  .dsep{width:10px;display:inline-block;}
+  .entry-preview{font-size:12px;color:var(--text-sub);}
+  .hw-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#EF9F27;margin-right:4px;vertical-align:middle;}
+  .detail-view{display:none;padding:0 1.25rem;}
+  .detail-view.active{display:block;}
+  .back-btn{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--accent);background:none;border:none;cursor:pointer;padding:1rem 0 0.75rem;-webkit-tap-highlight-color:transparent;}
+  .back-btn svg{width:16px;height:16px;}
+  .detail-num{font-size:17px;font-weight:600;margin-bottom:2px;}
+  .detail-meta{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
+  .detail-dots{display:flex;align-items:center;gap:4px;margin-bottom:1rem;flex-wrap:wrap;}
+  .blog-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--accent);text-decoration:none;margin-bottom:1.25rem;padding:0.4rem 0.75rem;border:0.5px solid #D0CEEF;border-radius:20px;background:#F5F4FE;}
+  .journal-body{font-size:14px;line-height:2;color:var(--text);white-space:pre-wrap;margin-bottom:1.25rem;}
+  .mark{display:inline;font-size:13px;font-weight:600;line-height:1.8;}
+  .mark-tip{color:#f20fb6;}
+  .mark-warn{color:var(--text);}
+  .section-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;}
+  .section-block{background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:1rem;}
+  .hw-item{display:flex;align-items:center;gap:10px;padding:.45rem 0;font-size:14px;color:var(--text);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .hw-item+.hw-item{border-top:0.5px solid var(--border);}
+  .hw-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+  .hw-item.done span{text-decoration:line-through;color:var(--text-muted);}
+  .add-area{padding:0 1.25rem;}
+  .add-btn{width:100%;padding:.8rem;border:0.5px dashed var(--border);border-radius:12px;background:none;color:var(--text-muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .12s;}
+  .add-btn:hover{background:var(--surface);color:var(--text-sub);}
+  .guide{margin:1rem 1.25rem 0;background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:.9rem 1rem;}
+  .guide-title{font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:.5rem;}
+  .guide-row{font-size:12px;color:var(--text-sub);line-height:1.9;}
+  .guide-row code{font-family:monospace;background:#F5F5F5;padding:0 4px;border-radius:3px;font-size:11px;}
+  /* 비용/스케줄 탭 */
+  .tab-view{display:none;padding:1rem 1.25rem;}
+  .tab-view.active{display:block;}
+  .cost-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem;}
+  .cost-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:.9rem 1rem;}
+  .cost-card-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;}
+  .cost-card-value{font-size:20px;font-weight:600;}
+  .cost-card-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .progress-wrap{margin-bottom:1rem;}
+  .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-sub);margin-bottom:6px;}
+  .progress-bg{background:var(--border);border-radius:4px;height:5px;}
+  .progress-fill{background:var(--text);border-radius:4px;height:5px;}
+  .cost-row{display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;font-size:13px;border-bottom:0.5px solid var(--border);}
+  .cost-row:last-child{border-bottom:none;}
+  .cost-row-left{display:flex;flex-direction:column;gap:2px;}
+  .cost-row-date{font-size:11px;color:var(--text-muted);}
+  .cost-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:#EAF3DE;color:#27500A;}
+  .cost-pending{font-size:10px;color:var(--text-muted);}
+  .cost-upcoming{font-size:10px;padding:2px 7px;border-radius:20px;background:#FAEEDA;color:#633806;}
+  /* 스케줄 */
+  .schedule-row{display:flex;align-items:flex-start;gap:12px;padding:.75rem 0;border-bottom:0.5px solid var(--border);}
+  .schedule-row:last-child{border-bottom:none;}
+  .schedule-date-col{min-width:64px;flex-shrink:0;}
+  .schedule-date{font-size:13px;font-weight:500;}
+  .schedule-day{font-size:11px;color:var(--text-muted);}
+  .schedule-content{flex:1;}
+  .schedule-title{font-size:13px;color:var(--text);}
+  .schedule-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .schedule-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;margin-top:3px;}
+  .badge-lesson{background:#F0EFFD;color:#534AB7;}
+  .badge-pay{background:#FAEEDA;color:#633806;}
+  .badge-done{background:#F0F0F0;color:#888;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="app-header"><span class="app-title">cccc class</span></div>
+  <div class="tab-row">
+    <button class="tab active" onclick="switchTab('journal')">수업일지</button>
+    <button class="tab" onclick="switchTab('cost')">비용</button>
+    <button class="tab" onclick="switchTab('schedule')">스케줄</button>
+  </div>
+
+  <!-- 수업일지 탭 -->
+  <div id="tab-journal" class="tab-view active" style="padding:0;">
+    <div class="legend">
+      <div class="legend-item"><span class="pill-tip">✸</span>중요</div>
+      <div class="legend-item"><span class="mark-symbol">∨</span>주의</div>
+      <div class="legend-item"><span class="dot d-today"></span>당일</div>
+      <div class="legend-item"><span class="dot d-done"></span>이전</div>
+      <div class="legend-item"><span class="dot d-empty"></span>예정</div>
+    </div>
+    <div id="list-view">
+      <div class="entry-list" id="entry-list"></div>
+      <div class="add-area">
+        <button class="add-btn" onclick="alert('다음 수업 후 클로드에게 블로그 글 붙여넣으면 여기 추가돼요!')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          다음 수업 후 추가
+        </button>
+      </div>
+      <div class="guide">
+        <div class="guide-title">✏️ 강조 기호 사용법</div>
+        <div class="guide-row">
+          <code>✸ 텍스트</code> → <span class="pill-tip">✸ 중요 포인트</span><br>
+          <code>∨ 텍스트</code> → <span class="mark-symbol">∨</span> 주의 (기호만 연두)
+        </div>
+      </div>
+    </div>
+    <div id="detail-container"></div>
+  </div>
+
+  <!-- 비용 탭 -->
+  <div id="tab-cost" class="tab-view">
+    <div class="cost-grid">
+      <div class="cost-card">
+        <div class="cost-card-label">총 결제</div>
+        <div class="cost-card-value">180만원</div>
+        <div class="cost-card-sub">3회차 완료</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-label">수강 진도</div>
+        <div class="cost-card-value">9강</div>
+        <div class="cost-card-sub">결제 기준 12강 중</div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>3회차 진도</span><span>9 / 12강</span></div>
+      <div class="progress-bg"><div class="progress-fill" style="width:75%"></div></div>
+    </div>
+    <div class="section-label">결제 내역</div>
+    <div class="section-block">
+      <div class="cost-row">
+        <div class="cost-row-left"><span>1회차 4강</span><span class="cost-row-date">260418 · 계좌이체</span></div>
+        <div style="text-align:right;"><div style="font-weight:500;">600,000원</div><span class="cost-badge">완료</span></div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-row-left"><span>2회차 4강</span><span class="cost-row-date">260523 · 계좌이체</span></div>
+        <div style="text-align:right;"><div style="font-weight:500;">600,000원</div><span class="cost-badge">완료</span></div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-row-left"><span>3회차 4강</span><span class="cost-row-date">260627 · 계좌이체</span></div>
+        <div style="text-align:right;"><div style="font-weight:500;">600,000원</div><span class="cost-badge">완료</span></div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-row-left"><span>4회차 4강</span><span class="cost-row-date">260731 결제 예정</span></div>
+        <div style="text-align:right;"><div style="font-weight:500;color:var(--text-muted);">600,000원</div><span class="cost-upcoming">예정</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스케줄 탭 -->
+  <div id="tab-schedule" class="tab-view">
+    <div class="section-label">지난 수업</div>
+    <div class="section-block">
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260418</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">1회차 1강</div><div class="schedule-sub">18:00~21:00</div><span class="schedule-badge badge-done">완료</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260509</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">1회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260523</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">1회차 4강 + 2회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260613</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">2회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260627</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">2회차 4강 + 3회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
+      </div>
+    </div>
+    <div class="section-label">예정 수업</div>
+    <div class="section-block">
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260718</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">3회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260731</div><div class="schedule-day">목</div></div>
+        <div class="schedule-content"><div class="schedule-title">결제 예정</div><div class="schedule-sub">4회차 60만원 · 계좌이체</div><span class="schedule-badge badge-pay">결제</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260801</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">3회차 4강 + 4회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260815</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">광복절 — 휴강</div><div class="schedule-sub">공휴일</div></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260822</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">4회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260904</div><div class="schedule-day">목</div></div>
+        <div class="schedule-content"><div class="schedule-title">결제 예정</div><div class="schedule-sub">5회차 60만원 · 계좌이체</div><span class="schedule-badge badge-pay">결제</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-date-col"><div class="schedule-date">260905</div><div class="schedule-day">토</div></div>
+        <div class="schedule-content"><div class="schedule-title">4회차 4강 + 5회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 수업 데이터 (새 수업 추가 시 여기만 수정) =====
+var LESSONS_PER_TERM = 4;
+var entries = [
+  {
+    id: 0, date: "260418", num: "001", lessonTotal: 1,
+    preview: "패턴뜨기 · 마네킹 연출 · 리서치 방향 잡기",
+    blogUrl: "https://blog.naver.com/sens-ory",
+    body: `일단 짐이 너무 많아서 무거웠다. 다른 해결방안을 찾아야할듯! 저녁수업이라 낮에 짐을 들고 돌아다닌게 큰 것 같다.
+
+스튜디오가 멋있었다 배울 맛 나더라 ✨
+
+처음 내가 생각한 아이디어를 말씀드리고 리서치를 보여줬을 때 쌤 반응이 생각보다 많이해왔다고 생각한 것 같다. 아마 비전공자라 기대를 안하신 것 같다.
+
+야상/드레스 나눠서 서치해갔는데 각각을 어떻게 섞으면 좋을지 이미지를 콜라주하면서 여러 아이디어 조합을 만들어보라고 하셨다.
+
+<span class="mark mark-tip">✸ 마네킹 연출</span>
+빈티지 샘플을 마네킹에 입혀 핀으로 실루엣을 잡아보는 작업. 과정 이미지로 남겨두면 콜라주 자료로 활용 가능. 불규칙하고 러프한 밑단이 마음에 들었다.
+
+<span class="mark mark-tip">✸ 패턴뜨기</span>
+빈티지 샘플 기준. 한 번에 뜰 수 없는 건 부분부분 나눠서 뜨고 선을 깔끔하게 그려야 함.
+
+<span class="mark mark-warn"><span class="mark-symbol">∨</span> 패턴 뜰 때 필요한 도구</span>
+패턴 종이 / 송곳 / 자(인치+센치) / 곡자 / 마스킹테이프 / 샤프 / 핀 / 무게추
+
+이미지 작업은 좋아하는데 막상 쉽지가 않다. 내 생각을 극대화시키는 이미지 만들어보자!`,
+    todos: ["수업 재료 사기", "조합이미지 콜라주 만들기", "원단 + 부자재 서치"],
+    memo: `<strong>용어</strong><br>
+• 삼봉 — 빈티지 야상 스티치, 튼튼함<br>
+• 와끼 — 옆선 · 앞중심 — 앞판 중앙선<br>
+• 식서방향 — 중력 방향, 안 늘어나는 방향<br>
+• 바이어스 — 잘 늘어나는 방향<br><br>
+<strong>인치 환산</strong><br>
+1인치=2.5cm · 1/2=1.25cm · 3/8=1cm · 1/4=0.6cm · 90cm=1야드`
+  },
+  {
+    id: 1, date: "260509", num: "002", lessonTotal: 3,
+    preview: "패턴 이어뜨기 · 미싱 연습 · 동대문 원단 서치",
+    blogUrl: "https://blog.naver.com/sens-ory",
+    body: `수업 전날까지도 혼자 스트레스를 무한대로 받았다. 해오라고 한게 많았는데 블렌드 팝업 준비에 에너지를 많이 쓰고 일본 여행까지 다녀왔기 때문... 그래도 돈이 들어가는 수업인 만큼 발악하긴 했음 ^^
+
+엄마와의 두 번째 서울! 두 번째 수업!! 🥹
+
+동대문은 쇼핑할 때랑 다르게 기가 많이 빨린다. 너무 넓고 뭐가 많아서 초보에겐 피로감이 크다.
+
+<span class="mark mark-tip">✸ 원단 서치</span>
+유니콘 — 올라가는 길에 우연히 찾은 원단집. 퀄 좋고 사장님 친절. 스와치들 수집 후 엄마랑 같이 여러 번 걸러서 들고감.
+
+<span class="mark mark-tip">✸ 패턴 이어뜨기</span>
+뒷판×2 / 소매 앞판×2 / 소매 뒷판×2 / 넥카라 대칭 / 주머니×4 / 비조×2 / 지퍼·스트링 표시. 절개선 기준으로 봉제 구조를 머릿속으로 그리는 연습 필요.
+
+<span class="mark mark-tip">✸ 턱 vs 다트</span>
+턱 = 끝에만 찝는 것 / 다트 = 다 박는 것. 소매 턱 1cm.
+
+<span class="mark mark-warn"><span class="mark-symbol">∨</span> 패턴 길이 맞추기</span>
+패턴끼리 붙는 부분 길이 재서 맞추기. 종이 덧대 늘리거나 절개선에서 잘라 줄이기. 이어졌을 때 라인도 고려. 전체적으로 넓게 보면서 최대한 티 안나게 수정.
+
+미싱 연습 — 실 끼우기, 밑실, 곡선/직선 박기. 쌤이 처음 해보는 거 맞냐고 해서 뿌듯 🥹
+미싱기 정보: sunstar KM 235AS`,
+    todos: ["가봉할 원단 구매해오기", "스냅단추 등 부자재 더 찾아보기"],
+    memo: null
+  },
+  {
+    id: 2, date: "260523", num: "003", lessonTotal: 5,
+    preview: "패턴 마무리 · 재단 · 통솔 연습",
+    blogUrl: "https://blog.naver.com/sens-ory",
+    body: `당일치기 서울! 가봉원단 구매해서 들고갔다. 봉제 배울 생각에 신나서 갔는데 저번 시간에 패턴 맞추던 걸 이어서 시작했따 ^...^
+
+<span class="mark mark-tip">✸ 패턴 길이 맞추기</span>
+면과 면이 붙어서 봉제될 부분들의 길이를 맞추는 작업. 앞중심·뒷중심을 건드릴 때는 신중하게. 줄자로 재고 패턴끼리 맞대서 더블체크. 이어지는 라인이 어색하지 않은지 보면서 다듬기.
+
+<span class="mark mark-tip">✸ 미가시</span>
+앞면과 똑같은데 안쪽에 하나 더 있는 분량. 내 몸에 붙는 면. 빈티지 기준 앞 미가시(왼)·(오)가 각각 달랐음 — 한쪽은 지퍼, 한쪽은 없음. 각 절개선에서 중심선 위치도 살짝 달라서 체크 필요.
+
+<span class="mark mark-tip">✸ 너치 표시</span>
+콩나물처럼! 절개선 기준 90도로 선을 그어주기. 두 패턴을 맞대거나 길이 재서 동일 위치에 표시.
+
+<span class="mark mark-tip">✸ 재단</span>
+원단 두겹으로 겹쳐서 식서방향 잘 보고 패턴 올리기. 반인치 시접 추가해서 재단선 그리기. 너치·턱·중심선 다 표시. 너치는 가위밥으로 살짝 표시 — 이 표시로 봉제 다 한다고 함.
+
+<span class="mark mark-warn"><span class="mark-symbol">∨</span> 재단할 때</span>
+원단을 밀듯이 자르지 말고 누르듯이 자르기. 자르기 전 시침핀으로 꼭 고정.
+
+<span class="mark mark-tip">✸ 통솔 순서</span>
+안쪽 면끼리 마주보고 1/4인치보다 살짝 안쪽 1차 박음 → 겉면으로 뒤집어서 1/4인치 박기 → 들리는 시접 한쪽으로 눕혀서 끝 스티치.
+
+<span class="mark mark-tip">✸ 오버록 vs 삼봉</span>
+오버록 — 안 늘어나는 원단 마감. 삼봉 — 늘어나는 원단 마감 (기계 따로 있고 비쌈). 오버록+본봉으로 삼봉 흉내낼 수 있음.`,
+    todos: ["재단해오기", "니켈지퍼 오픈형으로 찾아오기", "봉제 연습 (기본 봉제·통솔·말아박기)"],
+    memo: `<strong>용어</strong><br>
+• 미가시 — 안쪽에 덧대는 분량, 내 몸에 붙는 면<br>
+• 가위밥(가위집) — 너치를 가위로 살짝 표시하는 것<br>
+• 오버록 — 안 늘어나는 원단 마감법<br>
+• 삼봉 — 늘어나는 원단 마감법`
+  },
+  {
+    id: 3, date: "260613", num: "004", lessonTotal: 7,
+    preview: "봉제 데이 · 주머니",
+    blogUrl: "https://blog.naver.com/sens-ory",
+    body: `정신없이 지나가버린 0613 수업일지 .. 기억을 더듬어!!
+
+이 날은 봉제 데이. 빈티지 샘플과 비슷하게 통솔로 제봉!
+
+<span class="mark mark-tip">✸ 봉제 순서</span>
+뒷판끼리 뒷중심 연결 → 앞판 연결 → 암홀 양쪽 연결(턱 부분) → 주머니
+
+<span class="mark mark-tip">✸ 통솔 복습</span>
+안과 안이 만나 1/4보다 적게 1차 박음질(겉면) → 가름솔 다림질 → 뒤집어서 반접고 다림질 → 1/4 박음질 → 들리는 시접 한쪽으로 눕혀 끝 스티치.
+
+<span class="mark mark-warn"><span class="mark-symbol">∨</span> 주머니</span>
+주머니 뚜껑 + 주머니 덮개까지. 이 옷이 특히 주머니가 독특한 편이라고 하심. 처음 하기엔 어려운 게 맞다고 해서 위안이 됐다..
+
+옷 만드는 건 참 쉽지 않다.`,
+    todos: ["주머니 봉제 연습하기", "옷의 전체적 흐름과 구조 이해하기"],
+    memo: `<strong>숙제 기록</strong><br><br>
+<strong>1차 0617</strong><br>
+주머니 달기 완전 이해는 안됐지만 하나 달기 성공 ^^ 주머니 안쪽 입술이 왜 삐져나오는지 모르겠음. 뚜껑과 입술 시접 맞닿는 쪽 가위질도 이상하게 잘라버림. 연습 더 필요.<br><br>
+<strong>2차 0626</strong><br>
+주머니 뚜껑 만들기 — 실을 몇 번 뜯었는지 ^^ 몸통과 달릴 부분을 계속 인지하고 있어야 함! 시접 봉제 → 테두리 다듬기 → 뒤집어 다림질 → 끝 스티치. 길이가 안 맞는 것 같아서 스탑... 수업 때 다시 익혀야지.`
+  },
+  {
+    id: 4, date: "260627", num: "005", lessonTotal: 9,
+    preview: "주머니 마무리 · 지퍼 달기",
+    hwDot: true,
+    blogUrl: "https://blog.naver.com/sens-ory/224329142762",
+    body: `숙제인 주머니 달기를 하다가 좌절을 안고 😂 수업이 지나면 기억이 가물하다! 그래서 이번 수업부터는 틈틈히 사진과 영상을 찍어서 나중에 복습할 수 있게 해야지 생각함.
+
+<span class="mark mark-warn"><span class="mark-symbol">∨</span> 시접 방향 주의</span>
+시접이 뒷쪽으로 빠지려면 처음 달 때 방향을 잘 봐야 함. 잘못 달면 수정 어려움.
+
+<span class="mark mark-tip">✸ 너치가 중요!</span>
+와끼~소매 통솔 봉제할 때 너치 표시 꼭 해주기. 위치 기준점이 됨.
+
+<span class="mark mark-tip">✸ 통솔 봉제 순서</span>
+안끼리 마주보고 1/4 안쪽 1차 봉제 → 가름솔 갈라 다림질 + 뒤집어 반접고 다림질 → 1/4선 봉제 → 시접 넘겨 스티치 처리.
+
+<span class="mark mark-warn"><span class="mark-symbol">∨</span> 지퍼 달기</span>
+핀질 고정 시 지퍼 너무 당기지 않기. 외노루발 사용. 봉제선이 이빨에 너무 가깝거나 멀면 찝히거나 달랑거림.
+
+<span class="mark mark-warn"><span class="mark-symbol">∨</span> 위치 계산 시 시접 인지하기</span>
+지퍼 위치 표시할 때 시접 있는 거 꼭 계산에 넣기.
+
+거의 하루종일 봉제데이였다 🤓 거의 옷이 완성돼가는데 신기하면서 힘들기도 하고, 그래도 몰입해서 하게 되는 ㅎ`,
+    todos: ["밑단 말아박기", "밑가시 봉제"],
+    memo: `<strong>무드보드 리서치 항목</strong><br>
+• 나이대 인물 이미지 (사진작가 작품 / 영화·뮤비 캐릭터)<br>
+• 캐릭터 집 인테리어 (가구, 오브제, 커튼, 조명 — 아르데코·미드센추리 등)<br>
+• 캐릭터 자주 입는 아이템 (롱 원피스, 앞치마, 니삭스, 20년대 빈티지 구두 등)<br>
+• 빈티지 실물 옷 리서치<br>
+• 브랜드 이름<br>
+• 컬러/소재 (화이트 / 코튼, 린넨, 실크, 저지)`
+  }
+];
+
+// 동그라미 계산 함수 (회차 4강 기준, 자동)
+function buildDots(lessonTotal, isCard) {
+  var html = '';
+  var done = lessonTotal;
+  var term = 1;
+  var remaining = done;
+  var showTerms = [];
+
+  // 어느 회차까지 표시할지 계산
+  while (remaining > 0 || showTerms.length === 0) {
+    var termDone = Math.min(remaining, LESSONS_PER_TERM);
+    showTerms.push({ done: termDone, term: term });
+    remaining -= termDone;
+    if (remaining <= 0 && termDone === LESSONS_PER_TERM) {
+      // 회차가 꽉 찼으면 다음 회차 첫 칸 보여주기
+      showTerms.push({ done: 0, term: term + 1 });
+    }
+    term++;
+    if (term > 20) break;
+  }
+
+  showTerms.forEach(function(t, idx) {
+    if (idx > 0) html += '<span class="dsep"></span>';
+    html += '<span class="dlabel">' + t.term + '회차</span>';
+    for (var i = 0; i < LESSONS_PER_TERM; i++) {
+      if (i < t.done) {
+        // 마지막 회차의 마지막 강은 today, 나머지는 done
+        var isLastTerm = (idx === showTerms.length - 1) || (t.done === LESSONS_PER_TERM && idx === showTerms.length - 2);
+        var isCurrentLesson = (idx === showTerms.length - 2 && t.done === LESSONS_PER_TERM) ? false :
+                               (idx === showTerms.length - 1);
+        // 오늘 들은 강 = 현재 회차 중 마지막으로 들은 강 (가장 최근 항목)
+        html += '<span class="dot d-done"></span>';
+      } else {
+        html += '<span class="dot d-empty"></span>';
+      }
+    }
+  });
+  return html;
+}
+
+// 오늘 들은 강 표시 (해당 일지에서 들은 강만 today)
+function buildDotsForEntry(entry, allEntries) {
+  var prevTotal = 0;
+  for (var i = 0; i < allEntries.length; i++) {
+    if (allEntries[i].id === entry.id) break;
+    prevTotal = allEntries[i].lessonTotal;
+  }
+  var todayCount = entry.lessonTotal - prevTotal;
+  var total = entry.lessonTotal;
+  var html = '';
+  var term = 1;
+  var checked = 0;
+
+  while (checked < total || (checked === 0)) {
+    var termStart = (term - 1) * LESSONS_PER_TERM;
+    var termEnd = term * LESSONS_PER_TERM;
+    if (termStart >= total && term > 1) break;
+
+    if (checked > 0 || term > 1) html += '<span class="dsep"></span>';
+    html += '<span class="dlabel">' + term + '회차</span>';
+
+    for (var i = termStart; i < termEnd; i++) {
+      if (i >= total) {
+        html += '<span class="dot d-empty"></span>';
+      } else if (i >= prevTotal) {
+        html += '<span class="dot d-today"></span>';
+      } else {
+        html += '<span class="dot d-done"></span>';
+      }
+    }
+    checked = termEnd;
+    term++;
+    if (term > 20) break;
+  }
+  return html;
+}
+
+// 목록 렌더
+function renderList() {
+  var list = document.getElementById('entry-list');
+  list.innerHTML = '';
+  entries.forEach(function(e) {
+    var div = document.createElement('div');
+    div.className = 'entry-card';
+    div.onclick = function() { openEntry(e.id); };
+    var preview = e.hwDot ? '<span class="hw-dot"></span>' + e.preview : e.preview;
+    div.innerHTML =
+      '<div class="entry-row1"><span class="entry-num">' + e.date + ' 수업일지 ' + e.num + '</span><span class="entry-date"></span></div>' +
+      '<div class="entry-dots">' + buildDotsForEntry(e, entries) + '</div>' +
+      '<div class="entry-preview">' + preview + '</div>';
+    list.appendChild(div);
+  });
+}
+
+// 상세 렌더
+function renderDetails() {
+  var container = document.getElementById('detail-container');
+  container.innerHTML = '';
+  entries.forEach(function(e) {
+    var div = document.createElement('div');
+    div.id = 'detail-' + e.id;
+    div.className = 'detail-view';
+
+    var todosHtml = e.todos.map(function(t, i) {
+      return '<label class="hw-item" id="' + e.id + 'h' + i + '" onclick="toggleHw(\'' + e.id + 'h' + i + '\')"><input type="checkbox"><span>' + t + '</span></label>';
+    }).join('');
+
+    var memoHtml = e.memo ? '<div class="section-label">메모</div><div class="section-block"><div style="font-size:14px;line-height:1.9;color:var(--text-sub);">' + e.memo + '</div></div>' : '';
+
+    div.innerHTML =
+      '<button class="back-btn" onclick="closeEntry()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>목록으로</button>' +
+      '<div class="detail-num">' + e.date + ' 수업일지 ' + e.num + '</div>' +
+      '<div class="detail-meta">' + e.preview + '</div>' +
+      '<div class="detail-dots">' + buildDotsForEntry(e, entries) + '</div>' +
+      '<a class="blog-link" href="' + e.blogUrl + '" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>네이버 블로그 원본</a>' +
+      '<div class="section-block"><div class="journal-body">' + e.body + '</div></div>' +
+      '<div class="section-label">다음 수업 전까지</div><div class="section-block">' + todosHtml + '</div>' +
+      memoHtml;
+
+    container.appendChild(div);
+  });
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(el, i) {
+    el.classList.toggle('active', ['journal','cost','schedule'][i] === tab);
+  });
+  ['journal','cost','schedule'].forEach(function(t) {
+    var el = document.getElementById('tab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'journal') document.getElementById('tab-journal').style.display = 'block';
+}
+
+function openEntry(id) {
+  document.getElementById('list-view').style.display = 'none';
+  document.querySelectorAll('.detail-view').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('detail-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function closeEntry() {
+  document.querySelectorAll('.detail-view').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('list-view').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+function toggleHw(id) {
+  var el = document.getElementById(id);
+  var cb = el.querySelector('input');
+  setTimeout(function() { el.classList.toggle('done', cb.checked); }, 0);
+}
+
+// 탭 초기화
+document.getElementById('tab-cost').style.display = 'none';
+document.getElementById('tab-schedule').style.display = 'none';
+document.getElementById('tab-journal').style.display = 'block';
+
+renderList();
+renderDetails();
+</script>
+</body>
+</html>
