@@ -80,7 +80,7 @@
   .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-sub);margin-bottom:6px;}
   .progress-bg{background:var(--border);border-radius:4px;height:5px;}
   .progress-fill{background:var(--text);border-radius:4px;height:5px;}
-  .cost-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;border-bottom:0.5px solid var(--border);padding:.65rem 0;}
+  .cost-row{display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;font-size:13px;border-bottom:0.5px solid var(--border);}
   .cost-row:last-child{border-bottom:none;}
   .cost-row-left{display:flex;flex-direction:column;gap:2px;}
   .cost-row-date{font-size:11px;color:var(--text-muted);}
@@ -672,92 +672,71 @@ function renderList() {
   });
 }
 
-// ===== 상세 렌더OOOOB��[��[ۈ�[�\�]Z[�
-H�\��۝Z[�\�H��[Y[���][[Y[��RY
-	�]Z[X�۝Z[�\��N�۝Z[�\��[��\�SH	��[��Y\˙�ܑXX�
-�[��[ۊJH�\�]�H��[Y[��ܙX]Q[[Y[�
-	�]��N]��YH	�]Z[I�
-�K�Y]���\�Ә[YHH	�]Z[]�Y]��]��[��\�SB�	��]ۈ�\��H��X��X���ۘ�X��H����Q[��J
-H���
-	�ݙ��Y]Л�H�����[H��ۙH�����OH��\��[���܈�����K]�YH�������K[[�X�\H���[������K[[�Z��[�H���[����[[�H�[��H�MHNHL�MH
-��Ϗ�ݙϺ�z�g{'/:�g	�
-	�؝]ۏ��
-	�]��\��H�]Z[[�[H���
-�K�]H
-�	�;"&;%�{'o;)�	�
-�K��[H
-�	��]���
-	�]��[OH��۝\�^�N�L\���܎��\�K]^[]]Y
-N�X\��[�X���N�ȏ�'�{!,{'o	�
-�K�ܚ]Q]H
-�	��]���
-	�]��\��H�]Z[[Y]H���
-�K��]�Y]�
-�	��]���
-	�]��\��H�]Z[Y�ȏ��
-��Z[�ћܑ[��JK[��Y\�H
-�	��]���
-	�H�\��H����[[�Ȉ�Y�H��
-�K����\�
-�	Ȉ\��]H�؛[�ȏ��
-	�ݙ��YH�LȈZY�H�LȈ�Y]Л�H�����[H��ۙH�����OH��\��[���܈�����K]�YH����]H�LNLݍ�L��KL��
-XL��KL�L��L��H�L�
-��Ϗ�[[�H�[��H�MH��H��HH�Ϗ[�HOH�L�LOH�M��H��H�L�H�ȋϏ�ݙω�
-	��);'m:�:�%:�g:��;&�:��	�
-	��O��
-��:�;&�H
-�XY[ۛJB�	�]��\��H��X�[ۋ[X�[���;&�O�]���
-	�]��\��H��X�[ۋX���Ȉ�[OH�X\��[�X���N�K��\�[Nȏ�]��\��H���\��[X��H���
-�K���H
-�	��]���]���
-��;eh;'o
-:��{( H:�#:�e
-B�	�]��\��H��X�[ۋ[X�[\��ȏ��[��\��H��X�[ۋ[X�[����;'c;"&;%�H;(!:�c;)���[���]���
-	�]��\��H��X�[ۋX���ȈYH����\�X�[ۋI�
-�K�Y
-�	ȏ��]���
-��:�e:�
-:��{( H:�#:�e
-B�	�]�YH�Y[[�X�۝Z[�\�I�
-�K�Y
-�	ȏ��]����۝Z[�\��\[��[
-]�N�[�\�����X�[ۊK�Y
-N�[�\�Y[[��X�[ۊK�Y
-NJNB����OOOOH;`�K��):�aOOOOB��[��[ۈ��]�X�X�H��[Y[��]Y\�T�[X�ܐ[
-	˝X��K��ܑXX�
-�[��[ۊ[JH[��\��\�����J	�X�]�I��ڛ�\��[	�	����	�	���Y[I�V�WHOOHX�NJN�ڛ�\��[	�	����	�	���Y[I�K��ܑXX�
-�[��[ۊ
-H�\�[H��[Y[���][[Y[��RY
-	�X�I�
-�
-NY�
-[
-H[��[K�\�^HHOOHX��	؛�����	ۛۙI�JNB��[��[ۈ�[�[��JY
-H��[Y[���][[Y[��RY
-	�\�]�Y]��K��[K�\�^HH	ۛۙI���[Y[��]Y\�T�[X�ܐ[
-	˙]Z[]�Y]��K��ܑXX�
-�[��[ۊ[
-H�[��\��\���[[ݙJ	�X�]�I�N�JN�\�H��[Y[���][[Y[��RY
-	�]Z[I�
-�Y
-NY�
-
-H��\��\��Y
-	�X�]�I�N�[��˜�ܛ��
-NB��[��[ۈ���Q[��J
-H��[Y[��]Y\�T�[X�ܐ[
-	˙]Z[]�Y]��K��ܑXX�
-�[��[ۊ[
-H�[��\��\���[[ݙJ	�X�]�I�N�JN��[Y[���][[Y[��RY
-	�\�]�Y]��K��[K�\�^HH	؛�����[��˜�ܛ��
-NB����OOOOH;-":�,;feOOOOB�[�]�]\�
-N��[Y[���][[Y[��RY
-	�X�X���	�K��[K�\�^HH	ۛۙI���[Y[���][[Y[��RY
-	�X�\��Y[I�K��[K�\�^HH	ۛۙI���[Y[���][[Y[��RY
-	�X�Z��\��[	�K��[K�\�^HH	؛�����[�\�\�
+// ===== 상세 렌더 =====
+function renderDetails() {
+  var container = document.getElementById('detail-container');
+  container.innerHTML = '';
+  entries.forEach(function(e) {
+    var div = document.createElement('div');
+    div.id = 'detail-' + e.id;
+    div.className = 'detail-view';
+    div.innerHTML =
+      '<button class="back-btn" onclick="closeEntry()">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>목록으로' +
+      '</button>' +
+      '<div class="detail-num">' + e.date + ' 수업일지 ' + e.num + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">작성일 ' + e.writeDate + '</div>' +
+      '<div class="detail-meta">' + e.preview + '</div>' +
+      '<div class="detail-dots">' + buildDotsForEntry(e, entries) + '</div>' +
+      '<a class="blog-link" href="' + e.blogUrl + '" target="_blank">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+        '네이버 블로그 원본' +
+      '</a>' +
+      // 내용 (read-only)
+      '<div class="section-label">내용</div>' +
+      '<div class="section-block" style="margin-bottom:1.25rem;"><div class="journal-body">' + e.body + '</div></div>' +
+      // 할 일 (동적 렌더)
+      '<div class="section-label-row"><span class="section-label">다음 수업 전까지</span></div>' +
+      '<div class="section-block" id="todos-section-' + e.id + '"></div>' +
+      // 메모 (동적 렌더)
+      '<div id="memo-container-' + e.id + '"></div>';
+    container.appendChild(div);
+    renderTodosSection(e.id);
+    renderMemoSection(e.id);
+  });
+}
 
-N�[�\�]Z[�
-N�Y���Q�
-N����\X�\�{%�;!';( ;'�z�'; �{`�:��:��;&):�,
-:�a:��z�,
-B���ܚ\��؛�O���ml>
+// ===== 탭/네비 =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(el, i) {
+    el.classList.toggle('active', ['journal','cost','schedule'][i] === tab);
+  });
+  ['journal','cost','schedule'].forEach(function(t) {
+    var el = document.getElementById('tab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+}
+function openEntry(id) {
+  document.getElementById('list-view').style.display = 'none';
+  document.querySelectorAll('.detail-view').forEach(function(el) { el.classList.remove('active'); });
+  var d = document.getElementById('detail-' + id);
+  if (d) d.classList.add('active');
+  window.scrollTo(0, 0);
+}
+function closeEntry() {
+  document.querySelectorAll('.detail-view').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('list-view').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+// ===== 초기화 =====
+initStates();
+document.getElementById('tab-cost').style.display = 'none';
+document.getElementById('tab-schedule').style.display = 'none';
+document.getElementById('tab-journal').style.display = 'block';
+renderList();
+renderDetails();
+loadFromDB(); // Supabase에서 저장된 상태 불러오기 (비동기)
+</script>
+</body>
+</html>
