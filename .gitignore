@@ -1,0 +1,9 @@
+# Supabase 키 — Vercel 환경변수로 관리, git에 올리지 않음
+config.js
+.env
+.env.local
+.env*.local
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
