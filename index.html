@@ -1160,6 +1160,7 @@ renderSchedule();
 // 세션 감지 → 앱 진입 또는 로그인 화면 표시
 if (db) {
   db.auth.onAuthStateChange(async function(event, session) {
+    console.log('[AUTH] event:', event, '| user:', session && session.user ? session.user.email : 'none');
     if (session && session.user) {
       currentUser = session.user;
       showApp();
@@ -1174,13 +1175,18 @@ if (db) {
 
   // OAuth 리다이렉트 후 URL 해시에 토큰이 있으면 명시적으로 세션 설정
   var _hash = window.location.hash.substring(1);
+  console.log('[AUTH] hash check:', _hash.substring(0, 50) || '(empty)');
   if (_hash.includes('access_token=')) {
     var _params = new URLSearchParams(_hash);
     var _at = _params.get('access_token');
     var _rt = _params.get('refresh_token');
+    console.log('[AUTH] setSession 시도중... at존재:', !!_at, 'rt존재:', !!_rt);
     if (_at && _rt) {
-      db.auth.setSession({ access_token: _at, refresh_token: _rt }).then(function() {
-        history.replaceState(null, null, window.location.pathname);
+      db.auth.setSession({ access_token: _at, refresh_token: _rt }).then(function(res) {
+        console.log('[AUTH] setSession 결과:', res.error ? res.error.message : '성공');
+        if (!res.error) {
+          history.replaceState(null, null, window.location.pathname);
+        }
       });
     }
   }
