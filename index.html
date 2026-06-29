@@ -165,15 +165,47 @@
   .editor-btns button{padding:.4rem .9rem;border-radius:8px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .btn-save{background:var(--accent);color:white;border:none;}
   .btn-cancel{background:var(--surface);color:var(--text-sub);border:0.5px solid var(--border);}
+  /* 로그인 화면 */
+  #login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);}
+  .login-wrap{width:100%;max-width:360px;padding:2.5rem 1.5rem;}
+  .login-title{font-size:20px;font-weight:700;color:var(--text);text-align:center;margin-bottom:.3rem;}
+  .login-sub{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:2rem;}
+  .google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:white;color:#3c4043;border:1px solid #dadce0;border-radius:10px;padding:.8rem 1rem;font-size:15px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .google-btn:active{background:#f8f8f8;}
+  .login-err{font-size:13px;color:#E53935;text-align:center;margin-top:.75rem;min-height:18px;}
+  /* 로그아웃 버튼 */
+  .logout-btn{font-size:12px;color:var(--text-muted);background:none;border:0.5px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .logout-btn:active{opacity:.7;}
+  /* 앱 화면 (기본 숨김) */
+  #app-screen{display:none;}
 </style>
 </head>
 <body>
+
+<!-- 로그인 화면 -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-title">cccc class</div>
+    <div class="login-sub">수업 기록을 시작하세요</div>
+    <button class="google-btn" id="google-login-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0;"><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v8.51h12.93c-.56 2.99-2.26 5.52-4.81 7.22l7.74 6.01c4.51-4.16 7.12-10.28 7.12-17.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.82l-7.74-6.01c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.16C6.51 42.68 14.62 48 24 48z"/><path fill="#FBBC05" d="M10.53 28.56A14.96 14.96 0 0 1 9.5 24c0-1.58.27-3.12.76-4.56l-7.98-6.16A23.94 23.94 0 0 0 0 24c0 3.77.9 7.34 2.46 10.51l8.07-5.95z"/><path fill="#EA4335" d="M24 9.52c3.53 0 6.69 1.21 9.18 3.59l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.32 2.46 13.28l7.98 6.16C12.43 13.74 17.74 9.52 24 9.52z"/></svg>
+      Google로 로그인
+    </button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- 앱 화면 -->
+<div id="app-screen">
 <div class="app">
   <div class="app-header">
     <span class="app-title">cccc class</span>
-    <div class="sync-wrap">
-      <span id="sync-dot" class="sync-dot"></span>
-      <span id="sync-label" class="sync-label"></span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="sync-wrap">
+        <span id="sync-dot" class="sync-dot"></span>
+        <span id="sync-label" class="sync-label"></span>
+      </div>
+      <button class="logout-btn" onclick="signOut()">로그아웃</button>
     </div>
   </div>
   <div class="tab-row">
@@ -251,6 +283,7 @@
   <div id="tab-schedule" class="tab-view">
   </div>
 </div>
+</div><!-- /#app-screen -->
 
 <!-- Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -260,6 +293,7 @@
 <script>
 // ===== Supabase 초기화 =====
 var db = null;
+var currentUser = null;
 try {
   if (window.SUPABASE_URL && window.SUPABASE_KEY && window.supabase) {
     db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
@@ -603,6 +637,7 @@ async function saveToDB(entryId) {
     var s = states[entryId];
     var result = await db.from('entries_state').upsert({
       entry_id: entryId,
+      user_id: currentUser ? currentUser.id : null,
       todos: s.todos,
       memo: s.memo,
       body: s.body,
@@ -1075,6 +1110,40 @@ function closeEntry() {
   window.scrollTo(0, 0);
 }
 
+// ===== 인증 함수 =====
+function showLoginScreen() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display = 'none';
+}
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+}
+async function signOut() {
+  if (!db) return;
+  await db.auth.signOut();
+}
+
+// Google 로그인
+async function signInWithGoogle() {
+  if (!db) return;
+  var btn = document.getElementById('google-login-btn');
+  var errEl = document.getElementById('login-err');
+  btn.disabled = true;
+  errEl.textContent = '';
+  try {
+    var { error } = await db.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) throw error;
+    // Google 페이지로 리디렉션 → 돌아오면 onAuthStateChange가 처리
+  } catch(err) {
+    errEl.textContent = '로그인 중 오류가 발생했습니다. 다시 시도해주세요.';
+    btn.disabled = false;
+  }
+}
+
 // ===== 초기화 =====
 initStates();
 document.getElementById('tab-cost').style.display = 'none';
@@ -1083,7 +1152,25 @@ document.getElementById('tab-journal').style.display = 'block';
 renderList();
 renderDetails();
 renderSchedule();
-loadFromDB(); // Supabase에서 저장된 상태 불러오기 (비동기)
+
+// 세션 감지 → 앱 진입 또는 로그인 화면 표시
+if (db) {
+  db.auth.onAuthStateChange(async function(event, session) {
+    if (session && session.user) {
+      currentUser = session.user;
+      showApp();
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        await loadFromDB();
+      }
+    } else {
+      currentUser = null;
+      showLoginScreen();
+    }
+  });
+} else {
+  // Supabase 미연결 (로컬 개발) → 바로 앱 진입
+  showApp();
+}
 </script>
 </body>
 </html>
