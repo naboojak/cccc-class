@@ -1121,7 +1121,9 @@ function showApp() {
 }
 async function signOut() {
   if (!db) return;
-  await db.auth.signOut();
+  try { await db.auth.signOut(); } catch(e) {}
+  currentUser = null;
+  showLoginScreen();
 }
 
 // Google 로그인
