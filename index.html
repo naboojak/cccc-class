@@ -296,7 +296,9 @@ var db = null;
 var currentUser = null;
 try {
   if (window.SUPABASE_URL && window.SUPABASE_KEY && window.supabase) {
-    db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+    db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY, {
+      auth: { flowType: 'implicit' }
+    });
   }
 } catch(e) { console.warn('Supabase 초기화 실패:', e); }
 
@@ -1169,6 +1171,19 @@ if (db) {
       showLoginScreen();
     }
   });
+
+  // OAuth 리다이렉트 후 URL 해시에 토큰이 있으면 명시적으로 세션 설정
+  var _hash = window.location.hash.substring(1);
+  if (_hash.includes('access_token=')) {
+    var _params = new URLSearchParams(_hash);
+    var _at = _params.get('access_token');
+    var _rt = _params.get('refresh_token');
+    if (_at && _rt) {
+      db.auth.setSession({ access_token: _at, refresh_token: _rt }).then(function() {
+        history.replaceState(null, null, window.location.pathname);
+      });
+    }
+  }
 } else {
   // Supabase 미연결 (로컬 개발) → 바로 앱 진입
   showApp();
