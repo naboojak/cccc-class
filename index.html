@@ -17,7 +17,7 @@
   .sync-dot.saved{background:#5CB85C;}
   .sync-dot.error{background:#E53935;}
   .sync-label{font-size:11px;color:var(--text-muted);}
-  .tab-row{display:flex;background:var(--surface2);border-bottom:0.5px solid var(--border);}
+  .tab-row{display:flex;background:var(--surface2);border-bottom:0.5px solid var(--border);position:sticky;top:46px;z-index:9;}
   .tab{flex:1;padding:0.65rem;font-size:13px;text-align:center;color:var(--text-muted);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;}
   .tab.active{color:var(--text);border-bottom:2px solid var(--text);font-weight:500;}
   .legend{display:flex;gap:12px;flex-wrap:wrap;padding:0.6rem 1.25rem;background:var(--surface2);border-bottom:0.5px solid var(--border);align-items:center;}
@@ -42,8 +42,12 @@
   .hw-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#EF9F27;margin-right:4px;vertical-align:middle;}
   .detail-view{display:none;padding:0 1.25rem;}
   .detail-view.active{display:block;}
-  .back-btn{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--accent);background:var(--surface);border:0.5px solid var(--border);border-radius:10px;cursor:pointer;padding:0.6rem 1rem;margin:0.75rem 0;-webkit-tap-highlight-color:transparent;width:100%;justify-content:center;}
+  .back-btn{position:sticky;top:90px;z-index:8;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--accent);background:var(--surface);border:0.5px solid var(--border);border-radius:10px;cursor:pointer;padding:0.55rem 1rem;margin:.5rem 0;-webkit-tap-highlight-color:transparent;width:100%;justify-content:center;box-shadow:0 1px 6px rgba(0,0,0,.06);}
   .back-btn svg{width:16px;height:16px;}
+  /* 목록 정렬 버튼 */
+  .list-header{display:flex;align-items:center;justify-content:flex-end;padding:.5rem 1.25rem .1rem;}
+  .sort-btn{font-size:12px;color:var(--text-sub);background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:4px 11px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .sort-btn:active{opacity:.7;}
   .detail-num{font-size:17px;font-weight:600;margin-bottom:2px;}
   .detail-meta{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
   .detail-dots{display:flex;align-items:center;gap:4px;margin-bottom:1rem;flex-wrap:wrap;}
@@ -64,10 +68,6 @@
   .add-area{padding:0 1.25rem;}
   .add-btn{width:100%;padding:.8rem;border:0.5px dashed var(--border);border-radius:12px;background:none;color:var(--text-muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .12s;}
   .add-btn:hover{background:var(--surface);color:var(--text-sub);}
-  .guide{margin:1rem 1.25rem 0;background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:.9rem 1rem;}
-  .guide-title{font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:.5rem;}
-  .guide-row{font-size:12px;color:var(--text-sub);line-height:1.9;}
-  .guide-row code{font-family:monospace;background:#F5F5F5;padding:0 4px;border-radius:3px;font-size:11px;}
   /* 비용/스케줄 탭 */
   .tab-view{display:none;padding:1rem 1.25rem;}
   .tab-view.active{display:block;}
@@ -96,7 +96,7 @@
   .schedule-title{font-size:13px;color:var(--text);}
   .schedule-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
   .schedule-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;margin-top:3px;}
-  .badge-lesson{background:#F0EFFD;color:#534AB7;}
+  .badge-lesson{background:#F5F4FE;color:#534AB7;}
   .badge-pay{background:#FAEEDA;color:#633806;}
   .badge-done{background:#F0F0F0;color:#888;}
 
@@ -117,9 +117,51 @@
   .new-todo-ok{background:var(--accent);color:white;border:none;border-radius:8px;padding:.4rem .75rem;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
   .new-todo-x{background:var(--surface);color:var(--text-sub);border:0.5px solid var(--border);border-radius:8px;padding:.4rem .6rem;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 
+  /* 할 일 순서 변경 + 텍스트 편집 */
+  .todo-actions{display:flex;align-items:center;gap:2px;flex-shrink:0;}
+  .todo-move{width:26px;height:38px;border:none;background:none;color:var(--text-muted);font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;line-height:1;}
+  .todo-move:disabled{opacity:.2;cursor:default;}
+  .todo-move:not(:disabled):active{color:var(--accent);}
+  .todo-edit-btn{font-size:11px;color:var(--accent);border:0.5px solid #D0CEEF;border-radius:20px;background:#F5F4FE;padding:2px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;flex-shrink:0;line-height:1.6;}
+  .todo-edit-btn:active{opacity:.7;}
+  /* 드래그 핸들 */
+  .drag-handle{display:flex;align-items:center;padding:0 8px 0 2px;color:#CCC;cursor:grab;flex-shrink:0;user-select:none;-webkit-user-select:none;}
+  .drag-handle:active{cursor:grabbing;color:var(--text-muted);}
+  .todo-drag-ghost{opacity:.35;background:var(--surface);border-color:var(--accent) !important;border-radius:12px;}
+  .todo-edit-row{display:flex;gap:5px;padding:.4rem 0;align-items:center;width:100%;}
+  .todo-edit-inp{flex:1;border:0.5px solid var(--accent);border-radius:8px;padding:.35rem .6rem;font-size:14px;outline:none;font-family:inherit;color:var(--text);background:white;min-width:0;}
+  .todo-edit-ok{background:var(--accent);color:white;border:none;border-radius:8px;padding:.35rem .65rem;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+  .todo-edit-x2{background:var(--surface);color:var(--text-sub);border:0.5px solid var(--border);border-radius:8px;padding:.35rem .55rem;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+
+  /* 본문 마크 타입 */
+  .mark-important{color:#f20fb6;}
+  .mark-warning{color:var(--text);border-bottom:1.5px solid #90f20f;}
+  .mark-review{color:#9429c2;}
+  .mark-question{color:#2d4bf7;}
+  /* 본문 편집기 */
+  .body-editor{min-height:120px;border:0.5px solid var(--accent);border-radius:8px;padding:.75rem;font-size:14px;line-height:2;outline:none;font-family:inherit;color:var(--text);white-space:pre-wrap;word-break:break-word;margin-bottom:.5rem;background:white;}
+  /* 본문 툴바 */
+  .body-toolbar{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:.5rem;position:sticky;top:135px;z-index:7;background:var(--surface2);padding:.4rem .1rem;border-radius:8px;}
+  .toolbar-btn{font-size:12px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text-sub);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+  .toolbar-btn:active{opacity:.7;}
+  /* 형광펜 */
+  .mark-hl-1{background:#96fff5;border-radius:2px;}
+  .mark-hl-2{background:#fdffa3;border-radius:2px;}
+  .mark-hl-3{background:#dcffa3;border-radius:2px;}
+  .hl-swatch{background:transparent;border:none;padding:7px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;justify-content:center;}
+  .hl-swatch::before{content:'';display:block;width:10px;height:10px;border-radius:2px;border:0.5px solid rgba(0,0,0,.15);}
+  .hl-swatch-1::before{background:#96fff5;}
+  .hl-swatch-2::before{background:#fdffa3;}
+  .hl-swatch-3::before{background:#dcffa3;}
+  .tb-bold{font-weight:700;}
+  .tb-important{color:#f20fb6;border-color:#f9c8ed;background:#fef0fa;}
+  .tb-warning{color:var(--text-sub);border-color:#c8e8a0;background:#f3fce8;}
+  .tb-review{color:#9429c2;border-color:#e0b0f5;background:#f9effe;}
+  .tb-question{color:#2d4bf7;border-color:#c0cafd;background:#eef0fe;}
+
   /* 메모/내용 편집기 */
   .inline-ta{width:100%;border:0.5px solid var(--accent);border-radius:8px;padding:.6rem .75rem;font-size:14px;line-height:1.9;resize:vertical;outline:none;font-family:inherit;color:var(--text);background:white;min-height:90px;margin-bottom:.5rem;display:block;}
-  .editor-btns{display:flex;gap:6px;justify-content:flex-end;}
+  .editor-btns{display:flex;gap:6px;justify-content:center;}
   .editor-btns button{padding:.4rem .9rem;border-radius:8px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .btn-save{background:var(--accent);color:white;border:none;}
   .btn-cancel{background:var(--surface);color:var(--text-sub);border:0.5px solid var(--border);}
@@ -143,26 +185,24 @@
   <!-- 수업일지 탭 -->
   <div id="tab-journal" class="tab-view active" style="padding:0;">
     <div class="legend">
-      <div class="legend-item"><span class="pill-tip">✸</span>중요</div>
-      <div class="legend-item"><span class="mark-symbol">∨</span>주의</div>
+      <div class="legend-item"><span class="mark-important">✸</span>중요</div>
+      <div class="legend-item"><span class="mark-warning">∨</span>주의</div>
+      <div class="legend-item"><span class="mark-review">↺</span>다시보기</div>
+      <div class="legend-item"><span class="mark-question">?</span>질문</div>
       <div class="legend-item"><span class="dot d-today"></span>당일</div>
       <div class="legend-item"><span class="dot d-done"></span>이전</div>
       <div class="legend-item"><span class="dot d-empty"></span>예정</div>
     </div>
     <div id="list-view">
+      <div class="list-header">
+        <button class="sort-btn" id="sort-btn" onclick="toggleSort()">오래된순 ↑</button>
+      </div>
       <div class="entry-list" id="entry-list"></div>
       <div class="add-area">
         <button class="add-btn" onclick="alert('다음 수업 후 클로드에게 블로그 글 붙여넣으면 여기 추가돼요!')">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           다음 수업 후 추가
         </button>
-      </div>
-      <div class="guide">
-        <div class="guide-title">✏️ 강조 기호 사용법</div>
-        <div class="guide-row">
-          <code>✸ 텍스트</code> → <span class="pill-tip">✸ 중요 포인트</span><br>
-          <code>∨ 텍스트</code> → <span class="mark-symbol">∨</span> 주의 (기호만 연두)
-        </div>
       </div>
     </div>
     <div id="detail-container"></div>
@@ -207,67 +247,14 @@
     </div>
   </div>
 
-  <!-- 스케줄 탭 -->
+  <!-- 스케줄 탭 (JS로 동적 렌더링) -->
   <div id="tab-schedule" class="tab-view">
-    <div class="section-label">지난 수업</div>
-    <div class="section-block">
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260418</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">1회차 1강</div><div class="schedule-sub">18:00~21:00</div><span class="schedule-badge badge-done">완료</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260509</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">1회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260523</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">1회차 4강 + 2회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260613</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">2회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260627</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">2회차 4강 + 3회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-done">완료</span></div>
-      </div>
-    </div>
-    <div class="section-label">예정 수업</div>
-    <div class="section-block">
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260718</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">3회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260731</div><div class="schedule-day">목</div></div>
-        <div class="schedule-content"><div class="schedule-title">결제 예정</div><div class="schedule-sub">4회차 60만원 · 계좌이체</div><span class="schedule-badge badge-pay">결제</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260801</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">3회차 4강 + 4회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260815</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">광복절 — 휴강</div><div class="schedule-sub">공휴일</div></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260822</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">4회차 2,3강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260904</div><div class="schedule-day">목</div></div>
-        <div class="schedule-content"><div class="schedule-title">결제 예정</div><div class="schedule-sub">5회차 60만원 · 계좌이체</div><span class="schedule-badge badge-pay">결제</span></div>
-      </div>
-      <div class="schedule-row">
-        <div class="schedule-date-col"><div class="schedule-date">260905</div><div class="schedule-day">토</div></div>
-        <div class="schedule-content"><div class="schedule-title">4회차 4강 + 5회차 1강</div><div class="schedule-sub">14:00~20:00</div><span class="schedule-badge badge-lesson">예정</span></div>
-      </div>
-    </div>
   </div>
 </div>
 
 <!-- Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 <!-- 환경 설정 (config.js는 .gitignore에 포함, Vercel에서 환경변수로 자동 생성) -->
 <script src="config.js"></script>
 <script>
@@ -281,6 +268,29 @@ try {
 
 // ===== 수업 데이터 =====
 var LESSONS_PER_TERM = 4;
+
+function getDayName(yymmdd) {
+  var year = 2000 + parseInt(yymmdd.substring(0, 2), 10);
+  var month = parseInt(yymmdd.substring(2, 4), 10);
+  var day = parseInt(yymmdd.substring(4, 6), 10);
+  return ['일','월','화','수','목','금','토'][new Date(year, month - 1, day).getDay()];
+}
+
+var schedule = [
+  { date: "260418", title: "1회차 1강", sub: "18:00~21:00", badge: "done" },
+  { date: "260509", title: "1회차 2,3강", sub: "14:00~20:00", badge: "done" },
+  { date: "260523", title: "1회차 4강 + 2회차 1강", sub: "14:00~20:00", badge: "done" },
+  { date: "260613", title: "2회차 2,3강", sub: "14:00~20:00", badge: "done" },
+  { date: "260627", title: "2회차 4강 + 3회차 1강", sub: "14:00~20:00", badge: "done" },
+  { date: "260718", title: "3회차 2,3강", sub: "14:00~20:00", badge: "lesson" },
+  { date: "260731", title: "결제 예정", sub: "4회차 60만원 · 계좌이체", badge: "pay" },
+  { date: "260801", title: "3회차 4강 + 4회차 1강", sub: "14:00~20:00", badge: "lesson" },
+  { date: "260815", title: "광복절 — 휴강", sub: "공휴일", badge: null },
+  { date: "260822", title: "4회차 2,3강", sub: "14:00~20:00", badge: "lesson" },
+  { date: "260904", title: "결제 예정", sub: "5회차 60만원 · 계좌이체", badge: "pay" },
+  { date: "260905", title: "4회차 4강 + 5회차 1강", sub: "14:00~20:00", badge: "lesson" },
+];
+
 var entries = [
   {
     id: 0, date: "260418", writeDate: "260420", num: "001", lessonTotal: 1,
@@ -433,14 +443,103 @@ var entries = [
 ];
 
 // ===== 인메모리 상태 =====
-// states[entryId] = { todos: [{text, checked}], memo: string|null }
+// states[entryId] = { todos: [{text, checked}], memo: string|null, body: string|null }
 var states = {};
+// 할 일 인라인 편집 상태: { [entryId]: editingIdx | null }
+var todoEditState = {};
+// SortableJS 인스턴스 추적
+var sortableInstances = {};
+// 목록 정렬 ('desc'=최신순, 'asc'=오래된순)
+var listSortOrder = 'desc';
+function toggleSort() {
+  listSortOrder = listSortOrder === 'desc' ? 'asc' : 'desc';
+  var btn = document.getElementById('sort-btn');
+  if (btn) btn.textContent = listSortOrder === 'desc' ? '오래된순 ↑' : '최신순 ↓';
+  renderList();
+}
+// 본문 편집: 선택 범위 저장
+var savedBodyRange = null;
+var currentBodyEntryId = null;
+
+// ===== 유틸 함수 =====
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// HTML → plain text (줄바꿈 보존)
+function htmlToText(html) {
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  // <br>을 \n으로 교체
+  d.querySelectorAll('br').forEach(function(br) {
+    br.parentNode.replaceChild(document.createTextNode('\n'), br);
+  });
+  // 줄 앞뒤 공백 제거 후 연속 줄바꿈 모두 1개로 정리 (메모는 컴팩트하게)
+  return d.textContent.replace(/[ \t]*\n[ \t]*/g, '\n').replace(/\n{2,}/g, '\n').trim();
+}
+
+// 본문 HTML 새니타이저 (허용: <strong>, <br>, <span class="mark-*">)
+var ALLOWED_MARK_CLASSES = ['mark-important','mark-warning','mark-review','mark-question','mark-hl-1','mark-hl-2','mark-hl-3'];
+function walkNodes(el, out) {
+  el.childNodes.forEach(function(node) {
+    if (node.nodeType === 3) { // 텍스트
+      out.push(document.createTextNode(node.textContent));
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName;
+      if (tag === 'BR') {
+        out.push(document.createElement('br'));
+      } else if (tag === 'STRONG' || tag === 'B') {
+        var s = document.createElement('strong');
+        walkNodes(node, Array.prototype); // collect children into s
+        var inner = []; walkNodes(node, inner);
+        inner.forEach(function(c){ s.appendChild(c); });
+        out.push(s);
+      } else if (tag === 'SPAN') {
+        var cls = node.className || '';
+        if (ALLOWED_MARK_CLASSES.indexOf(cls) !== -1) {
+          var sp = document.createElement('span');
+          sp.className = cls;
+          var inner2 = []; walkNodes(node, inner2);
+          inner2.forEach(function(c){ sp.appendChild(c); });
+          out.push(sp);
+        } else {
+          walkNodes(node, out); // unwrap unknown spans
+        }
+      } else {
+        walkNodes(node, out); // unwrap other tags
+      }
+    }
+  });
+}
+function sanitizeBody(html) {
+  var src = document.createElement('div');
+  src.innerHTML = html;
+  var out = [];
+  walkNodes(src, out);
+  var wrap = document.createElement('div');
+  out.forEach(function(n){ wrap.appendChild(n); });
+  return wrap.innerHTML;
+}
+
+// 본문 편집 선택 저장/복원
+function saveBodySelection() {
+  var sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) {
+    savedBodyRange = sel.getRangeAt(0).cloneRange();
+  }
+}
+function restoreBodySelection() {
+  if (!savedBodyRange) return;
+  var sel = window.getSelection();
+  if (sel) { sel.removeAllRanges(); sel.addRange(savedBodyRange); }
+}
 
 function initStates() {
   entries.forEach(function(e) {
     states[e.id] = {
       todos: e.todos.map(function(t) { return { text: t, checked: false }; }),
-      memo: e.memo
+      memo: e.memo ? htmlToText(e.memo) : null,
+      body: e.body || null
     };
   });
 }
@@ -475,7 +574,10 @@ async function loadFromDB() {
           s.todos = row.todos;
         }
         if (row.memo !== null && row.memo !== undefined) {
-          s.memo = row.memo;
+          s.memo = htmlToText(row.memo);
+        }
+        if (row.body !== null && row.body !== undefined) {
+          s.body = row.body;
         }
       });
     }
@@ -484,6 +586,7 @@ async function loadFromDB() {
     entries.forEach(function(e) {
       renderTodosSection(e.id);
       renderMemoSection(e.id);
+      renderBodySection(e.id, false);
     });
   } catch(err) {
     console.warn('DB 불러오기 실패 (오프라인 모드):', err);
@@ -502,6 +605,7 @@ async function saveToDB(entryId) {
       entry_id: entryId,
       todos: s.todos,
       memo: s.memo,
+      body: s.body,
       updated_at: new Date().toISOString()
     }, { onConflict: 'entry_id' });
     if (result.error) throw result.error;
@@ -522,9 +626,56 @@ function toggleTodo(entryId, idx) {
 }
 
 function deleteTodo(entryId, idx) {
+  todoEditState[entryId] = null; // 편집 중이면 초기화
   states[entryId].todos.splice(idx, 1);
   renderTodosSection(entryId);
   saveToDB(entryId);
+}
+
+// ===== 할 일 텍스트 편집 =====
+function editTodo(entryId, idx) {
+  todoEditState[entryId] = idx;
+  renderTodosSection(entryId);
+}
+function cancelEditTodo(entryId) {
+  todoEditState[entryId] = null;
+  renderTodosSection(entryId);
+}
+function saveEditTodo(entryId, idx) {
+  var inp = document.getElementById('edit-todo-inp-' + entryId + '-' + idx);
+  if (!inp) return;
+  var text = inp.value.trim();
+  if (text) states[entryId].todos[idx].text = text;
+  todoEditState[entryId] = null;
+  renderTodosSection(entryId);
+  saveToDB(entryId);
+}
+
+// ===== 드래그 정렬 초기화 =====
+function initSortable(entryId) {
+  if (typeof Sortable === 'undefined') return;
+  var list = document.getElementById('todos-list-' + entryId);
+  if (!list) return;
+  if (sortableInstances[entryId]) {
+    try { sortableInstances[entryId].destroy(); } catch(e) {}
+  }
+  sortableInstances[entryId] = new Sortable(list, {
+    animation: 150,
+    handle: '.drag-handle',
+    ghostClass: 'todo-drag-ghost',
+    onEnd: function() {
+      var items = list.querySelectorAll('.todo-wrap[data-idx]');
+      var snap = states[entryId].todos.slice();
+      var newTodos = [];
+      items.forEach(function(el) {
+        var i = parseInt(el.getAttribute('data-idx'), 10);
+        if (!isNaN(i)) newTodos.push(snap[i]);
+      });
+      states[entryId].todos = newTodos;
+      renderTodosSection(entryId);
+      saveToDB(entryId);
+    }
+  });
 }
 
 function showAddTodo(entryId) {
@@ -550,34 +701,74 @@ function renderTodosSection(entryId) {
   var container = document.getElementById('todos-section-' + entryId);
   if (!container) return;
   var todos = states[entryId].todos;
-  var html = '';
+  var editingIdx = (todoEditState[entryId] != null) ? todoEditState[entryId] : -1;
+
+  // ── 정렬 가능한 항목 목록 ──
+  var listHtml = '';
   if (todos.length === 0) {
-    html = '<div style="font-size:13px;color:var(--text-muted);padding:.2rem 0;">할 일 없음</div>';
+    listHtml = '<div style="font-size:13px;color:var(--text-muted);padding:.4rem 0;">할 일 없음</div>';
   } else {
     todos.forEach(function(t, i) {
-      html += '<div class="todo-wrap">' +
-        '<label class="hw-item' + (t.checked ? ' done' : '') + '" onclick="toggleTodo(' + entryId + ',' + i + ')">' +
-          '<input type="checkbox"' + (t.checked ? ' checked' : '') + '>' +
-          '<span>' + esc(t.text) + '</span>' +
-        '</label>' +
-        '<button class="todo-del" onclick="event.stopPropagation();deleteTodo(' + entryId + ',' + i + ')" title="삭제">×</button>' +
-      '</div>';
+      if (i === editingIdx) {
+        // 편집 모드 (드래그 핸들 숨김)
+        listHtml += '<div class="todo-wrap" data-idx="' + i + '">' +
+          '<div class="todo-edit-row">' +
+            '<input class="todo-edit-inp" id="edit-todo-inp-' + entryId + '-' + i + '" type="text" value="' + esc(t.text) + '" ' +
+              'onkeydown="if(event.key===\'Enter\')saveEditTodo(' + entryId + ',' + i + ');else if(event.key===\'Escape\')cancelEditTodo(' + entryId + ')">' +
+            '<button class="todo-edit-ok" onclick="saveEditTodo(' + entryId + ',' + i + ')">저장</button>' +
+            '<button class="todo-edit-x2" onclick="cancelEditTodo(' + entryId + ')">취소</button>' +
+          '</div>' +
+        '</div>';
+      } else {
+        // 일반 모드 (드래그 핸들 표시)
+        listHtml += '<div class="todo-wrap" data-idx="' + i + '">' +
+          '<span class="drag-handle">' +
+            '<svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor">' +
+              '<circle cx="4" cy="4" r="1.5"/><circle cx="8" cy="4" r="1.5"/>' +
+              '<circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/>' +
+              '<circle cx="4" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/>' +
+            '</svg>' +
+          '</span>' +
+          '<label class="hw-item' + (t.checked ? ' done' : '') + '" onclick="toggleTodo(' + entryId + ',' + i + ')">' +
+            '<input type="checkbox"' + (t.checked ? ' checked' : '') + '>' +
+            '<span>' + esc(t.text) + '</span>' +
+          '</label>' +
+          '<div class="todo-actions">' +
+            '<button class="todo-edit-btn" onclick="event.stopPropagation();editTodo(' + entryId + ',' + i + ')">편집</button>' +
+            '<button class="todo-del" onclick="event.stopPropagation();deleteTodo(' + entryId + ',' + i + ')">×</button>' +
+          '</div>' +
+        '</div>';
+      }
     });
   }
-  html += '<button class="add-todo-btn" onclick="showAddTodo(' + entryId + ')">＋ 할 일 추가</button>';
-  html += '<div id="new-todo-row-' + entryId + '" class="new-todo-row" style="display:none;">' +
-    '<input class="new-todo-inp" id="new-todo-inp-' + entryId + '" type="text" placeholder="새 할 일 입력" ' +
-      'onkeydown="if(event.key===\'Enter\')confirmAddTodo(' + entryId + ');else if(event.key===\'Escape\')hideAddTodo(' + entryId + ')">' +
-    '<button class="new-todo-ok" onclick="confirmAddTodo(' + entryId + ')">추가</button>' +
-    '<button class="new-todo-x" onclick="hideAddTodo(' + entryId + ')">취소</button>' +
-  '</div>';
+
+  var html =
+    '<div id="todos-list-' + entryId + '">' + listHtml + '</div>' +
+    '<button class="add-todo-btn" onclick="showAddTodo(' + entryId + ')">＋ 할 일 추가</button>' +
+    '<div id="new-todo-row-' + entryId + '" class="new-todo-row" style="display:none;">' +
+      '<input class="new-todo-inp" id="new-todo-inp-' + entryId + '" type="text" placeholder="새 할 일 입력" ' +
+        'onkeydown="if(event.key===\'Enter\')confirmAddTodo(' + entryId + ');else if(event.key===\'Escape\')hideAddTodo(' + entryId + ')">' +
+      '<button class="new-todo-ok" onclick="confirmAddTodo(' + entryId + ')">추가</button>' +
+      '<button class="new-todo-x" onclick="hideAddTodo(' + entryId + ')">취소</button>' +
+    '</div>';
+
   container.innerHTML = html;
+
+  // 편집 모드 포커스
+  if (editingIdx >= 0) {
+    var inp = document.getElementById('edit-todo-inp-' + entryId + '-' + editingIdx);
+    if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }
+
+  // 드래그 정렬 초기화
+  initSortable(entryId);
 }
 
 // ===== 메모 기능 =====
 function editMemo(entryId) {
   var inner = document.getElementById('memo-inner-' + entryId);
   if (!inner) return;
+  // 저장된 memo는 plain text; textarea에 직접 넣기
   inner.innerHTML =
     '<textarea class="inline-ta" id="memo-ta-' + entryId + '"></textarea>' +
     '<div class="editor-btns">' +
@@ -586,7 +777,6 @@ function editMemo(entryId) {
     '</div>';
   var ta = document.getElementById('memo-ta-' + entryId);
   ta.value = states[entryId].memo || '';
-  // 자동 높이 조절
   ta.style.height = 'auto';
   ta.style.height = Math.max(90, ta.scrollHeight) + 'px';
   ta.addEventListener('input', function() {
@@ -618,15 +808,115 @@ function renderMemoSection(entryId) {
     '</div>' +
     '<div class="section-block"><div id="memo-inner-' + entryId + '">' +
       (hasMemo
-        ? '<div style="font-size:14px;line-height:1.9;color:var(--text-sub);">' + memo + '</div>'
+        ? '<div style="font-size:14px;line-height:1.8;color:var(--text-sub);white-space:pre-wrap;word-break:break-word;">' + esc(memo) + '</div>'
         : '<div style="font-size:13px;color:var(--text-muted);">메모 없음</div>'
       ) +
     '</div></div>';
 }
 
-// ===== 유틸 =====
-function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// ===== 본문 편집 =====
+function applyBodyMark(type) {
+  restoreBodySelection();
+  var sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+  if (type === 'bold') {
+    document.execCommand('bold');
+  } else {
+    // insertHTML 방식 → undo 히스토리에 기록됨
+    var cls = 'mark-' + type;
+    var selectedText = sel.getRangeAt(0).toString();
+    if (!selectedText) return;
+    document.execCommand('insertHTML', false, '<span class="' + cls + '">' + selectedText.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>');
+  }
+}
+
+function applyBodyHl(cls) {
+  restoreBodySelection();
+  var sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+  var selectedText = sel.getRangeAt(0).toString();
+  if (!selectedText) return;
+  document.execCommand('insertHTML', false, '<span class="' + cls + '">' + selectedText.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>');
+}
+
+function editBody(entryId) {
+  currentBodyEntryId = entryId;
+  renderBodySection(entryId, true);
+}
+function cancelBody(entryId) {
+  currentBodyEntryId = null;
+  renderBodySection(entryId, false);
+}
+function saveBody(entryId) {
+  var editor = document.getElementById('body-editor-' + entryId);
+  if (!editor) return;
+  var clean = sanitizeBody(editor.innerHTML);
+  states[entryId].body = clean.trim() || null;
+  currentBodyEntryId = null;
+  renderBodySection(entryId, false);
+  saveToDB(entryId);
+}
+
+function renderBodySection(entryId, editing) {
+  var outer = document.getElementById('body-container-' + entryId);
+  if (!outer) return;
+  var body = states[entryId].body;
+  var hasBody = !!body;
+  if (editing) {
+    outer.innerHTML =
+      '<div class="section-label-row">' +
+        '<span class="section-label">내용</span>' +
+      '</div>' +
+      '<div class="section-block">' +
+        '<div class="body-toolbar">' +
+          '<button class="toolbar-btn" onclick="document.execCommand(\'undo\')" title="실행 취소">↩</button>' +
+          '<button class="toolbar-btn" onclick="document.execCommand(\'redo\')" title="다시 실행">↪</button>' +
+          '<button class="toolbar-btn tb-bold" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'bold\')"><b>B</b> 진하게</button>' +
+          '<button class="toolbar-btn tb-important" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'important\')">✸ 중요</button>' +
+          '<button class="toolbar-btn tb-warning" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'warning\')">∨ 주의</button>' +
+          '<button class="toolbar-btn tb-review" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'review\')">↺ 다시보기</button>' +
+          '<button class="toolbar-btn tb-question" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'question\')">? 질문</button>' +
+          '<button class="hl-swatch hl-swatch-1" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-1\')" title="형광펜 1"></button>' +
+          '<button class="hl-swatch hl-swatch-2" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-2\')" title="형광펜 2"></button>' +
+          '<button class="hl-swatch hl-swatch-3" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-3\')" title="형광펜 3"></button>' +
+        '</div>' +
+        '<div class="body-editor" id="body-editor-' + entryId + '" contenteditable="true" onpaste="handleBodyPaste(event)"></div>' +
+        '<div class="editor-btns">' +
+          '<button class="btn-cancel" onclick="cancelBody(' + entryId + ')">취소</button>' +
+          '<button class="btn-save" onclick="saveBody(' + entryId + ')">저장</button>' +
+        '</div>' +
+      '</div>';
+    var editor = document.getElementById('body-editor-' + entryId);
+    if (editor) {
+      editor.innerHTML = body || '';
+      editor.focus();
+      // 커서를 끝으로
+      var range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      var sel = window.getSelection();
+      if (sel) { sel.removeAllRanges(); sel.addRange(range); }
+    }
+  } else {
+    outer.innerHTML =
+      '<div class="section-label-row">' +
+        '<span class="section-label">내용</span>' +
+        '<button class="edit-sm" onclick="editBody(' + entryId + ')">' + (hasBody ? '편집' : '＋ 추가') + '</button>' +
+      '</div>' +
+      '<div class="section-block">' +
+        (hasBody
+          ? '<div style="font-size:14px;line-height:1.8;color:var(--text);word-break:break-word;white-space:pre-wrap;">' + body + '</div>'
+          : '<div style="font-size:13px;color:var(--text-muted);">내용 없음</div>'
+        ) +
+      '</div>';
+  }
+}
+
+// 붙여넣기: plain text로 처리
+function handleBodyPaste(e) {
+  e.preventDefault();
+  var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, text);
 }
 
 // ===== 동그라미 계산 =====
@@ -638,34 +928,90 @@ function buildDotsForEntry(entry, allEntries) {
   }
   var total = entry.lessonTotal;
   var html = '';
-  var currentTerm = Math.ceil(total / LESSONS_PER_TERM);
-  if (total % LESSONS_PER_TERM === 0) currentTerm = total / LESSONS_PER_TERM;
-  var prevTermFull = (total % LESSONS_PER_TERM === 0) && total > 0;
-  var termsToShow = prevTermFull ? [currentTerm, currentTerm + 1] : [currentTerm];
-  termsToShow.forEach(function(term, idx) {
+  // 당일 수업에 해당하는 회차만 추출
+  var termsInvolved = {};
+  for (var j = prevTotal; j < total; j++) {
+    var term = Math.floor(j / LESSONS_PER_TERM) + 1;
+    if (!termsInvolved[term]) termsInvolved[term] = [];
+    termsInvolved[term].push(j);
+  }
+  var sortedTerms = Object.keys(termsInvolved).map(Number).sort(function(a, b) { return a - b; });
+  sortedTerms.forEach(function(term, idx) {
     if (idx > 0) html += '<span class="dsep"></span>';
     html += '<span class="dlabel">' + term + '회차</span>';
     var termStart = (term - 1) * LESSONS_PER_TERM;
-    for (var j = termStart; j < termStart + LESSONS_PER_TERM; j++) {
-      if (j >= total) { html += '<span class="dot d-empty"></span>'; }
-      else if (j >= prevTotal) { html += '<span class="dot d-today"></span>'; }
+    for (var k = termStart; k < termStart + LESSONS_PER_TERM; k++) {
+      if (k >= total) { html += '<span class="dot d-empty"></span>'; }
+      else if (k >= prevTotal) { html += '<span class="dot d-today"></span>'; }
       else { html += '<span class="dot d-done"></span>'; }
     }
   });
   return html;
 }
 
+// ===== 스케줄 렌더 =====
+function renderSchedule() {
+  var container = document.getElementById('tab-schedule');
+  var lastMonth = null;
+  var html = '';
+  var currentBlock = '';
+  schedule.forEach(function(item) {
+    var month = parseInt(item.date.substring(2, 4), 10) + '월';
+    if (month !== lastMonth) {
+      if (currentBlock) {
+        html += '<div class="section-block" style="margin-bottom:1rem;">' + currentBlock + '</div>';
+        currentBlock = '';
+      }
+      html += '<div class="section-label">' + month + '</div>';
+      lastMonth = month;
+    }
+    var day = getDayName(item.date);
+    var badgeHtml = '';
+    if (item.badge === 'done') badgeHtml = '<span class="schedule-badge badge-done">완료</span>';
+    else if (item.badge === 'lesson') badgeHtml = '<span class="schedule-badge badge-lesson">예정</span>';
+    else if (item.badge === 'pay') badgeHtml = '<span class="schedule-badge badge-pay">결제</span>';
+    currentBlock +=
+      '<div class="schedule-row">' +
+        '<div class="schedule-date-col">' +
+          '<div class="schedule-date">' + item.date + '</div>' +
+          '<div class="schedule-day">' + day + '</div>' +
+        '</div>' +
+        '<div class="schedule-content">' +
+          '<div class="schedule-title">' + item.title + '</div>' +
+          '<div class="schedule-sub">' + item.sub + '</div>' +
+          badgeHtml +
+        '</div>' +
+      '</div>';
+  });
+  if (currentBlock) {
+    html += '<div class="section-block" style="margin-bottom:1rem;">' + currentBlock + '</div>';
+  }
+  container.innerHTML = html;
+}
+
 // ===== 목록 렌더 =====
+function formatWriteDate(yymmdd) {
+  if (!yymmdd || yymmdd.length !== 6) return yymmdd;
+  var yy = yymmdd.slice(0,2), mm = yymmdd.slice(2,4), dd = yymmdd.slice(4,6);
+  var days = ['일','월','화','수','목','금','토'];
+  var dow = days[new Date('20'+yy+'-'+mm+'-'+dd).getDay()];
+  return '20'+yy+'.'+mm+'.'+dd+' '+dow;
+}
+
 function renderList() {
   var list = document.getElementById('entry-list');
   list.innerHTML = '';
-  entries.forEach(function(e) {
+  var sorted = entries.slice().sort(function(a, b) {
+    var na = parseInt(a.num, 10), nb = parseInt(b.num, 10);
+    return listSortOrder === 'desc' ? nb - na : na - nb;
+  });
+  sorted.forEach(function(e) {
     var div = document.createElement('div');
     div.className = 'entry-card';
     div.onclick = function() { openEntry(e.id); };
     var preview = e.hwDot ? '<span class="hw-dot"></span>' + e.preview : e.preview;
     div.innerHTML =
-      '<div class="entry-row1"><span class="entry-num">' + e.date + ' 수업일지 ' + e.num + '</span><span class="entry-date">작성 ' + e.writeDate + '</span></div>' +
+      '<div class="entry-row1"><span class="entry-num">' + e.date + ' 수업일지 ' + e.num + '</span><span class="entry-date">작성 ' + formatWriteDate(e.writeDate) + '</span></div>' +
       '<div class="entry-dots">' + buildDotsForEntry(e, entries) + '</div>' +
       '<div class="entry-preview">' + preview + '</div>';
     list.appendChild(div);
@@ -685,22 +1031,22 @@ function renderDetails() {
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>목록으로' +
       '</button>' +
       '<div class="detail-num">' + e.date + ' 수업일지 ' + e.num + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">작성일 ' + e.writeDate + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">작성일 ' + formatWriteDate(e.writeDate) + '</div>' +
       '<div class="detail-meta">' + e.preview + '</div>' +
       '<div class="detail-dots">' + buildDotsForEntry(e, entries) + '</div>' +
       '<a class="blog-link" href="' + e.blogUrl + '" target="_blank">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
         '네이버 블로그 원본' +
       '</a>' +
-      // 내용 (read-only)
-      '<div class="section-label">내용</div>' +
-      '<div class="section-block" style="margin-bottom:1.25rem;"><div class="journal-body">' + e.body + '</div></div>' +
+      // 내용 (동적 렌더)
+      '<div id="body-container-' + e.id + '"></div>' +
       // 할 일 (동적 렌더)
       '<div class="section-label-row"><span class="section-label">다음 수업 전까지</span></div>' +
       '<div class="section-block" id="todos-section-' + e.id + '"></div>' +
       // 메모 (동적 렌더)
       '<div id="memo-container-' + e.id + '"></div>';
     container.appendChild(div);
+    renderBodySection(e.id, false);
     renderTodosSection(e.id);
     renderMemoSection(e.id);
   });
@@ -736,6 +1082,7 @@ document.getElementById('tab-schedule').style.display = 'none';
 document.getElementById('tab-journal').style.display = 'block';
 renderList();
 renderDetails();
+renderSchedule();
 loadFromDB(); // Supabase에서 저장된 상태 불러오기 (비동기)
 </script>
 </body>
