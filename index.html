@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>cccc class</title>
 <style>
   :root { --bg:#FFFFFF; --surface:#FAFAFA; --surface2:#FFFFFF; --border:#EFEFEF; --text:#1A1A1A; --text-sub:#6B6860; --text-muted:#A09E99; --accent:#534AB7; }
@@ -113,7 +113,7 @@
   .add-todo-btn{width:100%;padding:.5rem;border:0.5px dashed var(--border);border-radius:10px;background:none;color:var(--text-muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:.5rem;-webkit-tap-highlight-color:transparent;}
   .add-todo-btn:active{background:var(--surface);}
   .new-todo-row{display:flex;gap:6px;margin-top:.5rem;padding-top:.5rem;border-top:0.5px solid var(--border);}
-  .new-todo-inp{flex:1;border:0.5px solid var(--accent);border-radius:8px;padding:.4rem .65rem;font-size:16px;outline:none;font-family:inherit;color:var(--text);background:white;}
+  .new-todo-inp{flex:1;border:0.5px solid var(--accent);border-radius:8px;padding:.4rem .65rem;font-size:15px;outline:none;font-family:inherit;color:var(--text);background:white;}
   .new-todo-ok{background:var(--accent);color:white;border:none;border-radius:8px;padding:.4rem .75rem;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
   .new-todo-x{background:var(--surface);color:var(--text-sub);border:0.5px solid var(--border);border-radius:8px;padding:.4rem .6rem;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 
@@ -129,7 +129,7 @@
   .drag-handle:active{cursor:grabbing;color:var(--text-muted);}
   .todo-drag-ghost{opacity:.35;background:var(--surface);border-color:var(--accent) !important;border-radius:12px;}
   .todo-edit-row{display:flex;gap:5px;padding:.4rem 0;align-items:center;width:100%;}
-  .todo-edit-inp{flex:1;border:0.5px solid var(--accent);border-radius:8px;padding:.35rem .6rem;font-size:16px;outline:none;font-family:inherit;color:var(--text);background:white;min-width:0;}
+  .todo-edit-inp{flex:1;border:0.5px solid var(--accent);border-radius:8px;padding:.35rem .6rem;font-size:15px;outline:none;font-family:inherit;color:var(--text);background:white;min-width:0;}
   .todo-edit-ok{background:var(--accent);color:white;border:none;border-radius:8px;padding:.35rem .65rem;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
   .todo-edit-x2{background:var(--surface);color:var(--text-sub);border:0.5px solid var(--border);border-radius:8px;padding:.35rem .55rem;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 
@@ -139,7 +139,8 @@
   .mark-review{color:#9429c2;}
   .mark-question{color:#2d4bf7;}
   /* 본문 편집기 */
-  .body-editor{min-height:120px;border:0.5px solid var(--accent);border-radius:8px;padding:.75rem;font-size:16px;line-height:2;outline:none;font-family:inherit;color:var(--text);white-space:pre-wrap;word-break:break-word;margin-bottom:.5rem;background:white;}
+  .body-editor{min-height:120px;border:0.5px solid var(--accent);border-radius:8px;padding:.75rem;font-size:15px;line-height:1.6;outline:none;font-family:inherit;color:var(--text);white-space:pre-wrap;word-break:break-word;margin-bottom:.5rem;background:white;}
+  .body-editor *{line-height:1.6;}
   /* 본문 툴바 (편집 중 화면 하단 고정) */
   .body-toolbar{display:flex;gap:5px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;align-items:center;position:fixed;left:0;right:0;bottom:0;z-index:50;width:100%;max-width:480px;margin:0 auto;background:var(--surface2);border-top:0.5px solid var(--border);padding:.5rem .75rem;box-shadow:0 -2px 10px rgba(0,0,0,.06);-webkit-overflow-scrolling:touch;}
   .body-toolbar::-webkit-scrollbar{display:none;}
@@ -161,7 +162,7 @@
   .tb-question{color:#2d4bf7;border-color:#c0cafd;background:#eef0fe;}
 
   /* 메모/내용 편집기 */
-  .inline-ta{width:100%;border:0.5px solid var(--accent);border-radius:8px;padding:.6rem .75rem;font-size:16px;line-height:1.9;resize:vertical;outline:none;font-family:inherit;color:var(--text);background:white;min-height:90px;margin-bottom:.5rem;display:block;}
+  .inline-ta{width:100%;border:0.5px solid var(--accent);border-radius:8px;padding:.6rem .75rem;font-size:15px;line-height:1.7;resize:vertical;outline:none;font-family:inherit;color:var(--text);background:white;min-height:90px;margin-bottom:.5rem;display:block;}
   .editor-btns{display:flex;gap:6px;justify-content:center;}
   .editor-btns button{padding:.4rem .9rem;border-radius:8px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .btn-save{background:var(--accent);color:white;border:none;}
