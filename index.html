@@ -503,17 +503,24 @@ function htmlToText(html) {
 
 // 본문 HTML 새니타이저 (허용: <strong>, <br>, <span class="mark-*">)
 var ALLOWED_MARK_CLASSES = ['mark-important','mark-warning','mark-review','mark-question','mark-hl-1','mark-hl-2','mark-hl-3'];
+var BLOCK_TAGS = ['DIV','P','LI'];
+function lastIsBr(out) {
+  var last = out[out.length - 1];
+  return last && last.nodeType === 1 && last.tagName === 'BR';
+}
 function walkNodes(el, out) {
   el.childNodes.forEach(function(node) {
     if (node.nodeType === 3) { // 텍스트
-      out.push(document.createTextNode(node.textContent));
+      var txt = node.textContent;
+      // 블록 사이 포맷용 공백(줄바꿈만 있는 공백 텍스트)은 버림 → 중복 줄바꿈 방지
+      if (/^\s*$/.test(txt) && /[\r\n]/.test(txt)) return;
+      out.push(document.createTextNode(txt));
     } else if (node.nodeType === 1) {
       var tag = node.tagName;
       if (tag === 'BR') {
         out.push(document.createElement('br'));
       } else if (tag === 'STRONG' || tag === 'B') {
         var s = document.createElement('strong');
-        walkNodes(node, Array.prototype); // collect children into s
         var inner = []; walkNodes(node, inner);
         inner.forEach(function(c){ s.appendChild(c); });
         out.push(s);
@@ -528,6 +535,12 @@ function walkNodes(el, out) {
         } else {
           walkNodes(node, out); // unwrap unknown spans
         }
+      } else if (BLOCK_TAGS.indexOf(tag) !== -1) {
+        // 블록 요소(div/p) 경계를 <br>로 변환 → Enter 줄바꿈 보존
+        if (out.length > 0 && !lastIsBr(out)) {
+          out.push(document.createElement('br'));
+        }
+        walkNodes(node, out);
       } else {
         walkNodes(node, out); // unwrap other tags
       }
