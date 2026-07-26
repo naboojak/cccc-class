@@ -923,21 +923,44 @@ function applyBodyHl(cls) {
   document.execCommand('insertHTML', false, '<span class="' + cls + '">' + inner + '</span>');
 }
 
-// 링크 삽입: 선택한 글자를 라벨로, 주소 입력받아 <a>로 감쌈
-function applyBodyLink() {
-  restoreBodySelection();
-  var sel = window.getSelection();
-  var selectedText = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0).toString() : '';
-  var url = window.prompt('링크 주소 (예: https://...)', 'https://');
-  if (!url) return;
-  url = url.trim();
-  if (!url || url === 'https://') return;
-  if (!/^https?:\/\//i.test(url)) url = 'https://' + url.replace(/^\/+/, '');
-  var label = selectedText || window.prompt('표시할 이름', '링크') || url;
-  var safeLabel = String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  var safeUrl = url.replace(/"/g,'%22').replace(/</g,'%3C').replace(/>/g,'%3E');
-  restoreBodySelection();
-  document.execCommand('insertHTML', false, '<a href="' + safeUrl + '" target="_blank" rel="noopener">' + safeLabel + '</a>');
+// 본문 표시용 자동 링크화: 텍스트 노드의 URL / [라벨](주소)를 <a>로 (기존 태그·링크는 유지)
+function linkifyBody(html) {
+  var root = document.createElement('div');
+  root.innerHTML = html || '';
+  linkifyWalk(root);
+  return root.innerHTML;
+}
+function linkifyWalk(node) {
+  for (var i = node.childNodes.length - 1; i >= 0; i--) {
+    var child = node.childNodes[i];
+    if (child.nodeType === 3) {
+      linkifyTextNode(child);
+    } else if (child.nodeType === 1 && child.tagName !== 'A') {
+      linkifyWalk(child); // 이미 <a> 안은 건드리지 않음
+    }
+  }
+}
+function linkifyTextNode(textNode) {
+  var text = textNode.textContent;
+  var re = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s]+)/g;
+  if (!re.test(text)) return;
+  re.lastIndex = 0;
+  var frag = document.createDocumentFragment();
+  var last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+    var label = m[1] ? m[1] : m[3];
+    var url = m[1] ? m[2] : m[3];
+    var a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener');
+    a.textContent = label;
+    frag.appendChild(a);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+  textNode.parentNode.replaceChild(frag, textNode);
 }
 
 // 편집 툴바를 모바일 키보드 바로 위에 위치시키기 (visualViewport 대응)
@@ -997,7 +1020,6 @@ function renderBodySection(entryId, editing) {
           '<button class="hl-swatch hl-swatch-1" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-1\')" title="형광펜 1"></button>' +
           '<button class="hl-swatch hl-swatch-2" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-2\')" title="형광펜 2"></button>' +
           '<button class="hl-swatch hl-swatch-3" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-3\')" title="형광펜 3"></button>' +
-          '<button class="toolbar-btn tb-link" onpointerdown="saveBodySelection()" onclick="applyBodyLink()" title="링크">🔗 링크</button>' +
         '</div>' +
         '<div class="body-editor" id="body-editor-' + entryId + '" contenteditable="true" onpaste="handleBodyPaste(event)"></div>' +
         '<div class="editor-btns">' +
@@ -1026,7 +1048,7 @@ function renderBodySection(entryId, editing) {
       '</div>' +
       '<div class="section-block">' +
         (hasBody
-          ? '<div style="font-size:14px;line-height:1.8;color:var(--text);word-break:break-word;white-space:pre-wrap;">' + body + '</div>'
+          ? '<div style="font-size:14px;line-height:1.8;color:var(--text);word-break:break-word;white-space:pre-wrap;">' + linkifyBody(body) + '</div>'
           : '<div style="font-size:13px;color:var(--text-muted);">내용 없음</div>'
         ) +
       '</div>';
