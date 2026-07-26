@@ -60,6 +60,7 @@
   .section-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
   .section-label-row .section-label{margin-bottom:0;}
   .section-block{background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:1rem;}
+  .section-block a{color:var(--accent);text-decoration:underline;word-break:break-all;}
   /* 기존 hw-item (인접형제 경계선) */
   .hw-item{display:flex;align-items:center;gap:10px;padding:.45rem 0;font-size:14px;color:var(--text);cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .hw-item+.hw-item{border-top:0.5px solid var(--border);}
@@ -160,6 +161,7 @@
   .tb-warning{color:var(--text-sub);border-color:#c8e8a0;background:#f3fce8;}
   .tb-review{color:#9429c2;border-color:#e0b0f5;background:#f9effe;}
   .tb-question{color:#2d4bf7;border-color:#c0cafd;background:#eef0fe;}
+  .tb-link{color:var(--accent);border-color:#d0ceef;background:#f5f4fe;}
 
   /* 메모/내용 편집기 */
   .inline-ta{width:100%;border:0.5px solid var(--accent);border-radius:8px;padding:.6rem .75rem;font-size:15px;line-height:1.7;resize:vertical;outline:none;font-family:inherit;color:var(--text);background:white;min-height:90px;margin-bottom:.5rem;display:block;}
@@ -324,7 +326,7 @@ var schedule = [
   { date: "260523", title: "1회차 4강 + 2회차 1강", sub: "14:00~20:00", badge: "done" },
   { date: "260613", title: "2회차 2,3강", sub: "14:00~20:00", badge: "done" },
   { date: "260627", title: "2회차 4강 + 3회차 1강", sub: "14:00~20:00", badge: "done" },
-  { date: "260718", title: "3회차 2,3강", sub: "14:00~20:00", badge: "lesson" },
+  { date: "260718", title: "3회차 2,3강", sub: "14:00~20:00", badge: "done" },
   { date: "260801", title: "3회차 4강 + 4회차 1강", sub: "14:00~20:00", badge: "lesson" },
   { date: "260815", title: "광복절 — 휴강", sub: "공휴일", badge: null },
   { date: "260822", title: "4회차 2,3강", sub: "14:00~20:00", badge: "lesson" },
@@ -463,6 +465,14 @@ var entries = [
     body: `<p></p>`,
     todos: [],
     memo: null
+  },
+  {
+    id: 6, date: "260801", writeDate: "260801", num: "007", lessonTotal: 13,
+    preview: "3회차 4강 + 4회차 1강",
+    blogUrl: "https://blog.naver.com/sens-ory",
+    body: `<p></p>`,
+    todos: ["과정 사진·영상 찍기 (복습 루틴)", "지난 숙제(주머니) 피드백 받기", "헷갈리는 부분 바로 질문하기", "다음 숙제 정확히 받아적기"],
+    memo: null
   }
 ];
 
@@ -488,6 +498,22 @@ var currentBodyEntryId = null;
 // ===== 유틸 함수 =====
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// plain text → 링크 렌더링: [라벨](주소) + 맨 URL을 클릭 가능한 링크로
+function renderRichText(plain) {
+  var tokens = [];
+  var s = esc(plain);
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(m, label, url) {
+    tokens.push('<a href="' + url + '" target="_blank" rel="noopener">' + label + '</a>');
+    return ' ' + (tokens.length - 1) + ' ';
+  });
+  s = s.replace(/(https?:\/\/[^\s<]+)/g, function(m, url) {
+    tokens.push('<a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>');
+    return ' ' + (tokens.length - 1) + ' ';
+  });
+  s = s.replace(/ (\d+) /g, function(m, i) { return tokens[+i]; });
+  return s;
 }
 
 // HTML → plain text (줄바꿈 보존)
@@ -535,6 +561,19 @@ function walkNodes(el, out) {
           out.push(sp);
         } else {
           walkNodes(node, out); // unwrap unknown spans
+        }
+      } else if (tag === 'A') {
+        var href = node.getAttribute('href') || '';
+        if (/^https?:\/\//i.test(href)) {
+          var a = document.createElement('a');
+          a.setAttribute('href', href);
+          a.setAttribute('target', '_blank');
+          a.setAttribute('rel', 'noopener');
+          var innerA = []; walkNodes(node, innerA);
+          innerA.forEach(function(c){ a.appendChild(c); });
+          out.push(a);
+        } else {
+          walkNodes(node, out); // 안전하지 않은 링크는 텍스트만 유지
         }
       } else if (BLOCK_TAGS.indexOf(tag) !== -1) {
         // 블록 요소(div/p) 경계를 <br>로 변환 → Enter 줄바꿈 보존
@@ -846,7 +885,7 @@ function renderMemoSection(entryId) {
     '</div>' +
     '<div class="section-block"><div id="memo-inner-' + entryId + '">' +
       (hasMemo
-        ? '<div style="font-size:14px;line-height:1.8;color:var(--text-sub);white-space:pre-wrap;word-break:break-word;">' + esc(memo) + '</div>'
+        ? '<div style="font-size:14px;line-height:1.8;color:var(--text-sub);white-space:pre-wrap;word-break:break-word;">' + renderRichText(memo) + '</div>'
         : '<div style="font-size:13px;color:var(--text-muted);">메모 없음</div>'
       ) +
     '</div></div>';
@@ -882,6 +921,23 @@ function applyBodyHl(cls) {
   var inner = selectionInnerHTML(sel.getRangeAt(0));
   if (!inner) return;
   document.execCommand('insertHTML', false, '<span class="' + cls + '">' + inner + '</span>');
+}
+
+// 링크 삽입: 선택한 글자를 라벨로, 주소 입력받아 <a>로 감쌈
+function applyBodyLink() {
+  restoreBodySelection();
+  var sel = window.getSelection();
+  var selectedText = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0).toString() : '';
+  var url = window.prompt('링크 주소 (예: https://...)', 'https://');
+  if (!url) return;
+  url = url.trim();
+  if (!url || url === 'https://') return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url.replace(/^\/+/, '');
+  var label = selectedText || window.prompt('표시할 이름', '링크') || url;
+  var safeLabel = String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var safeUrl = url.replace(/"/g,'%22').replace(/</g,'%3C').replace(/>/g,'%3E');
+  restoreBodySelection();
+  document.execCommand('insertHTML', false, '<a href="' + safeUrl + '" target="_blank" rel="noopener">' + safeLabel + '</a>');
 }
 
 // 편집 툴바를 모바일 키보드 바로 위에 위치시키기 (visualViewport 대응)
@@ -941,6 +997,7 @@ function renderBodySection(entryId, editing) {
           '<button class="hl-swatch hl-swatch-1" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-1\')" title="형광펜 1"></button>' +
           '<button class="hl-swatch hl-swatch-2" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-2\')" title="형광펜 2"></button>' +
           '<button class="hl-swatch hl-swatch-3" onpointerdown="saveBodySelection()" onclick="applyBodyHl(\'mark-hl-3\')" title="형광펜 3"></button>' +
+          '<button class="toolbar-btn tb-link" onpointerdown="saveBodySelection()" onclick="applyBodyLink()" title="링크">🔗 링크</button>' +
         '</div>' +
         '<div class="body-editor" id="body-editor-' + entryId + '" contenteditable="true" onpaste="handleBodyPaste(event)"></div>' +
         '<div class="editor-btns">' +
