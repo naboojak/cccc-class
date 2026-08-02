@@ -92,6 +92,8 @@
   /* 스케줄 */
   .schedule-row{display:flex;align-items:flex-start;gap:12px;padding:.75rem 0;border-bottom:0.5px solid var(--border);}
   .schedule-row:last-child{border-bottom:none;}
+  .schedule-row-toggle{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .schedule-row-toggle:active{opacity:.55;}
   .schedule-date-col{min-width:64px;flex-shrink:0;}
   .schedule-date{font-size:13px;font-weight:500;}
   .schedule-day{font-size:11px;color:var(--text-muted);}
@@ -164,6 +166,7 @@
   .tb-review{color:#9429c2;border-color:#e0b0f5;background:#f9effe;}
   .tb-question{color:#2d4bf7;border-color:#c0cafd;background:#eef0fe;}
   .tb-link{color:var(--accent);border-color:#d0ceef;background:#f5f4fe;}
+  .tb-clear{color:var(--text-sub);border-color:var(--border);background:var(--surface);}
 
   /* 메모/내용 편집기 */
   .inline-ta{width:100%;border:0.5px solid var(--accent);border-radius:8px;padding:.6rem .75rem;font-size:15px;line-height:1.7;resize:vertical;outline:none;font-family:inherit;color:var(--text);background:white;min-height:90px;margin-bottom:.5rem;display:block;}
@@ -277,6 +280,10 @@ try {
 // ===== 수업 데이터 =====
 var LESSONS_PER_TERM = 4;
 
+// ===== 스케줄 완료 상태 (사용자 토글) =====
+var SCHEDULE_ENTRY_ID = 901;   // Supabase entries_state 예약 행 (스케줄 완료 상태 저장용)
+var scheduleOverrides = {};    // { "YYMMDD": true(완료)/false(예정) }
+
 // ===== 결제 데이터 =====
 var PAYMENTS_ENTRY_ID = 900;   // Supabase entries_state 예약 행 (결제 상태 저장용)
 var AMOUNT_PER_TERM = 600000;  // 회차당 결제액
@@ -302,7 +309,7 @@ var schedule = [
   { date: "260613", title: "2회차 2,3강", sub: "14:00~20:00", badge: "done" },
   { date: "260627", title: "2회차 4강 + 3회차 1강", sub: "14:00~20:00", badge: "done" },
   { date: "260718", title: "3회차 2,3강", sub: "14:00~20:00", badge: "done" },
-  { date: "260801", title: "3회차 4강 + 4회차 1강", sub: "14:00~20:00", badge: "lesson" },
+  { date: "260801", title: "3회차 4강 + 4회차 1강", sub: "14:00~20:00", badge: "done" },
   { date: "260815", title: "광복절 — 휴강", sub: "공휴일", badge: null },
   { date: "260822", title: "4회차 2,3강", sub: "14:00~20:00", badge: "lesson" },
   { date: "260905", title: "4회차 4강 + 5회차 1강", sub: "14:00~20:00", badge: "lesson" },
@@ -447,6 +454,14 @@ var entries = [
     blogUrl: "https://blog.naver.com/sens-ory",
     body: `<p></p>`,
     todos: ["과정 사진·영상 찍기 (복습 루틴)", "지난 숙제(주머니) 피드백 받기", "헷갈리는 부분 바로 질문하기", "다음 숙제 정확히 받아적기"],
+    memo: null
+  },
+  {
+    id: 7, date: "260822", writeDate: "260822", num: "008", lessonTotal: 15,
+    preview: "4회차 2,3강",
+    blogUrl: "https://blog.naver.com/sens-ory",
+    body: `<p></p>`,
+    todos: [],
     memo: null
   }
 ];
@@ -664,6 +679,17 @@ async function loadFromDB() {
           }
           return;
         }
+        if (row.entry_id === SCHEDULE_ENTRY_ID) {
+          if (row.todos && typeof row.todos === 'object' && !Array.isArray(row.todos)) {
+            scheduleOverrides = row.todos;
+            schedule.forEach(function(it) {
+              if ((it.badge === 'done' || it.badge === 'lesson') && Object.prototype.hasOwnProperty.call(scheduleOverrides, it.date)) {
+                it.badge = scheduleOverrides[it.date] ? 'done' : 'lesson';
+              }
+            });
+          }
+          return;
+        }
         var s = states[row.entry_id];
         if (!s) return;
         if (Array.isArray(row.todos)) {
@@ -685,6 +711,7 @@ async function loadFromDB() {
       if (e.id !== currentBodyEntryId) renderBodySection(e.id, false);
     });
     renderCost();
+    renderSchedule();
   } catch(err) {
     console.warn('DB 불러오기 실패 (오프라인 모드):', err);
     setSyncStatus('error', '오프라인');
@@ -950,6 +977,29 @@ function applyBodyHl(cls) {
   document.execCommand('insertHTML', false, '<span class="' + cls + '">' + inner + '</span>');
 }
 
+// 서식 해제(기본으로): 선택 영역의 모든 서식 제거, 텍스트·줄바꿈만 유지
+function stripToPlainHtml(el) {
+  var s = '';
+  el.childNodes.forEach(function(n) {
+    if (n.nodeType === 3) s += esc(n.textContent);
+    else if (n.nodeType === 1) {
+      if (n.tagName === 'BR') s += '<br>';
+      else s += stripToPlainHtml(n); // 태그 벗기고 내용만
+    }
+  });
+  return s;
+}
+function clearBodyFormat() {
+  restoreBodySelection();
+  var sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+  var div = document.createElement('div');
+  div.appendChild(sel.getRangeAt(0).cloneContents());
+  var cleaned = stripToPlainHtml(div);
+  if (cleaned === '') return;
+  document.execCommand('insertHTML', false, cleaned);
+}
+
 // 본문 표시용 자동 링크화: 텍스트 노드의 URL / [라벨](주소)를 <a>로 (기존 태그·링크는 유지)
 function linkifyBody(html) {
   var root = document.createElement('div');
@@ -1041,6 +1091,7 @@ function renderBodySection(entryId, editing) {
         '<div class="body-toolbar">' +
           '<button class="toolbar-btn" onclick="document.execCommand(\'undo\')" title="실행 취소">↩</button>' +
           '<button class="toolbar-btn" onclick="document.execCommand(\'redo\')" title="다시 실행">↪</button>' +
+          '<button class="toolbar-btn tb-clear" onpointerdown="saveBodySelection()" onclick="clearBodyFormat()" title="서식 해제(기본)">기본</button>' +
           '<button class="toolbar-btn tb-bold" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'bold\')"><b>B</b> 진하게</button>' +
           '<button class="toolbar-btn tb-important" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'important\')">✸ 중요</button>' +
           '<button class="toolbar-btn tb-warning" onpointerdown="saveBodySelection()" onclick="applyBodyMark(\'warning\')">∨ 주의</button>' +
@@ -1196,7 +1247,7 @@ async function savePaymentsToDB() {
 function renderSchedule() {
   var container = document.getElementById('tab-schedule');
   var lastMonth = null;
-  var html = '';
+  var html = '<div style="font-size:11px;color:var(--text-muted);margin-bottom:.5rem;">수업 행을 탭하면 완료 ↔ 예정 전환</div>';
   var currentBlock = '';
   schedule.forEach(function(item) {
     var month = parseInt(item.date.substring(2, 4), 10) + '월';
@@ -1213,8 +1264,9 @@ function renderSchedule() {
     if (item.badge === 'done') badgeHtml = '<span class="schedule-badge badge-done">완료</span>';
     else if (item.badge === 'lesson') badgeHtml = '<span class="schedule-badge badge-lesson">예정</span>';
     else if (item.badge === 'pay') badgeHtml = '<span class="schedule-badge badge-pay">결제</span>';
+    var togglable = (item.badge === 'done' || item.badge === 'lesson');
     currentBlock +=
-      '<div class="schedule-row">' +
+      '<div class="schedule-row' + (togglable ? ' schedule-row-toggle' : '') + '"' + (togglable ? ' onclick="toggleSchedule(\'' + item.date + '\')"' : '') + '>' +
         '<div class="schedule-date-col">' +
           '<div class="schedule-date">' + item.date + '</div>' +
           '<div class="schedule-day">' + day + '</div>' +
@@ -1230,6 +1282,34 @@ function renderSchedule() {
     html += '<div class="section-block" style="margin-bottom:1rem;">' + currentBlock + '</div>';
   }
   container.innerHTML = html;
+}
+function toggleSchedule(date) {
+  var it = null;
+  for (var i = 0; i < schedule.length; i++) { if (schedule[i].date === date) { it = schedule[i]; break; } }
+  if (!it || (it.badge !== 'done' && it.badge !== 'lesson')) return;
+  it.badge = (it.badge === 'done') ? 'lesson' : 'done';
+  scheduleOverrides[date] = (it.badge === 'done');
+  renderSchedule();
+  saveScheduleToDB();
+}
+async function saveScheduleToDB() {
+  if (!db) return;
+  setSyncStatus('saving', '저장 중');
+  try {
+    var result = await db.from('entries_state').upsert({
+      entry_id: SCHEDULE_ENTRY_ID,
+      user_id: currentUser ? currentUser.id : null,
+      todos: scheduleOverrides,
+      memo: null,
+      body: null,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'entry_id' });
+    if (result.error) throw result.error;
+    setSyncStatus('saved', '저장됨');
+  } catch(err) {
+    console.error('스케줄 저장 실패:', err);
+    setSyncStatus('error', '저장 실패');
+  }
 }
 
 // ===== 목록 렌더 =====
