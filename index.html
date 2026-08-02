@@ -977,27 +977,41 @@ function applyBodyHl(cls) {
   document.execCommand('insertHTML', false, '<span class="' + cls + '">' + inner + '</span>');
 }
 
-// 서식 해제(기본으로): 선택 영역의 모든 서식 제거, 텍스트·줄바꿈만 유지
-function stripToPlainHtml(el) {
-  var s = '';
-  el.childNodes.forEach(function(n) {
-    if (n.nodeType === 3) s += esc(n.textContent);
-    else if (n.nodeType === 1) {
-      if (n.tagName === 'BR') s += '<br>';
-      else s += stripToPlainHtml(n); // 태그 벗기고 내용만
-    }
-  });
-  return s;
+// 서식 해제(기본으로): 선택과 겹치는 서식 태그(mark span·strong·a 등)를 통째로 벗김
+function rangeHitsNode(range, el) {
+  try { return range.intersectsNode(el); }
+  catch(e) {
+    var nr = document.createRange();
+    nr.selectNode(el);
+    return range.compareBoundaryPoints(Range.END_TO_START, nr) < 0 &&
+           range.compareBoundaryPoints(Range.START_TO_END, nr) > 0;
+  }
 }
 function clearBodyFormat() {
   restoreBodySelection();
   var sel = window.getSelection();
   if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
-  var div = document.createElement('div');
-  div.appendChild(sel.getRangeAt(0).cloneContents());
-  var cleaned = stripToPlainHtml(div);
-  if (cleaned === '') return;
-  document.execCommand('insertHTML', false, cleaned);
+  var range = sel.getRangeAt(0);
+  var editor = range.commonAncestorContainer;
+  if (editor.nodeType === 3) editor = editor.parentNode;
+  while (editor && !(editor.nodeType === 1 && editor.classList && editor.classList.contains('body-editor'))) editor = editor.parentNode;
+  if (!editor) return;
+  var fmtEls = editor.querySelectorAll('span, strong, b, a, font, i, u, em');
+  var targets = [];
+  for (var i = 0; i < fmtEls.length; i++) {
+    if (rangeHitsNode(range, fmtEls[i])) targets.push(fmtEls[i]);
+  }
+  // 안쪽(뒤쪽) 요소부터 언랩 → 내용은 유지, 서식 껍데기만 제거
+  for (var j = targets.length - 1; j >= 0; j--) {
+    var t = targets[j], parent = t.parentNode;
+    if (!parent) continue;
+    while (t.firstChild) parent.insertBefore(t.firstChild, t);
+    parent.removeChild(t);
+  }
+  editor.normalize();
+  sel.removeAllRanges();
+  savedBodyRange = null;
+  saveBodyDraft(editor.id.replace('body-editor-', ''));
 }
 
 // 본문 표시용 자동 링크화: 텍스트 노드의 URL / [라벨](주소)를 <a>로 (기존 태그·링크는 유지)
